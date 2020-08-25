@@ -84,14 +84,49 @@ export default {
   name: 'PagePerson',
   data() {
     return {
-      age: 35,
-      height: 169,
-      weight: 76,
-      fatPercentage: 24,
-      gender: 'female',
     };
   },
   computed: {
+    age: {
+      get() {
+        return this.$store.state.buoyancy.age;
+      },
+      set(value) {
+        return this.$store.dispatch('buoyancy/setPersonProperty', { age: value });
+      },
+    },
+    height: {
+      get() {
+        return this.$store.state.buoyancy.height;
+      },
+      set(value) {
+        return this.$store.dispatch('buoyancy/setPersonProperty', { height: value });
+      },
+    },
+    weight: {
+      get() {
+        return this.$store.state.buoyancy.weight;
+      },
+      set(value) {
+        return this.$store.dispatch('buoyancy/setPersonProperty', { weight: value });
+      },
+    },
+    fatPercentage: {
+      get() {
+        return this.$store.state.buoyancy.fatPercentage;
+      },
+      set(value) {
+        return this.$store.dispatch('buoyancy/setPersonProperty', { fatPercentage: value });
+      },
+    },
+    gender: {
+      get() {
+        return this.$store.state.buoyancy.gender;
+      },
+      set(value) {
+        return this.$store.dispatch('buoyancy/setPersonProperty', { gender: value });
+      },
+    },
     lungCapacity() {
       return math.CalculateLungCapacity(this.gender === 'male', this.age, this.height / 100.0);
     },

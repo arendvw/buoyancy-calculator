@@ -1,36 +1,30 @@
 <template>
   <q-page class="flex">
     <div class="q-pa-md">
-      <div class="q-gutter-y-md column" style="max-width: 600px">
-        <q-input
-          v-model.number="height"
-          type="number"
-          filled
-          label="Your height (cm)"
-        />
-        <q-input
-          v-model.number="weight"
-          type="number"
-          filled
-          label="Your weight (kg)"
-        />
-      </div>
       <q-markup-table style="margin-top: 20px">
-        <thead>
+        <tr>
+          <td>Your height</td>
+          <td style="text-align: right">{{ height }} cm</td>
+        </tr>
+        <tr>
+          <td>Your weight</td>
+          <td style="text-align: right">{{ weight }} kg</td>
+        </tr>
         <tr>
           <td>Body surface area (BSA)</td>
-        </tr>
-        </thead>
-        <tr>
-          <td style="text-align: right">{{ bsaMosteller.toFixed(2) }} (m<sup>2</sup>)</td>
+          <td style="text-align: right">{{ bsaMosteller.toFixed(2) }} m<sup>2</sup>
+          </td>
         </tr>
       </q-markup-table>
 
+      <div class="q-ma-sm">
       <q-select
+        label="Add new piece"
         @input="addOption"
-        v-model="optionToAdd"
+        :value="optionToAdd"
         :options="options"
         placeholder="Add new piece" />
+      </div>
 
       <q-markup-table style="margin-top: 20px">
         <thead>
@@ -97,6 +91,8 @@ import * as math from '../math';
  the overall density will approach the density of pure neoprene
  rubber.
 
+ 1.2MPA = 12 ata / 12 bar
+
  Table 5, https://www.researchgate.net/publication/230971354_Thermal_conductivity_and_compressive_strain_of_foam_neoprene_insulation_under_hydrostatic_pressure/link/542da9c00cf277d58e8d106d/download
  Thermal conductivity and compressive strain of foam neoprene insulation under hydrostatic pressure
 
@@ -111,15 +107,10 @@ export default {
   name: 'PageSuit',
   data() {
     return {
-      age: 35,
-      height: 169,
-      weight: 76,
-      fatPercentage: 24,
-      gender: 'female',
       selectedItems: [],
       totalWeight: 0,
       totalVolume: 0,
-      optionToAdd: 'none',
+      optionToAdd: null,
       neopreneDensity: [
         {
           label: 'New',
@@ -135,6 +126,10 @@ export default {
         },
       ],
       options: [
+        {
+          label: 'Add new piece..',
+          value: null,
+        },
         {
           label: 'Full Body',
           value: 'fullBody',
@@ -188,21 +183,21 @@ export default {
     };
   },
   computed: {
-    bsaDubois() {
-      return math.CalculateBSADubois(this.height, this.weight);
+    height() {
+      return this.$store.state.buoyancy.height;
+    },
+    weight() {
+      return this.$store.state.buoyancy.weight;
     },
     bsaMosteller() {
-      return math.CalculateBSADubois(this.height, this.weight);
-    },
-    bsaSlichMale() {
-      return math.CalculateBSASchlichMale(this.height, this.weight);
-    },
-    bsaSlichFemale() {
-      return math.CalculateBSASchlichFemale(this.height, this.weight);
+      return math.CalculateBSAMosteller(this.height, this.weight);
     },
   },
   methods: {
     addOption(item) {
+      if (item.value === null) {
+        return;
+      }
       this.selectedItems.push({
         type: item.value,
         label: item.label,
