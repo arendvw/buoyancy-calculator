@@ -1,8 +1,8 @@
 {
   "name": "buoyancy-quasar",
   "version": "0.0.1",
-  "description": "A Quasar Framework app",
-  "productName": "Quasar App",
+  "description": "Estimate different scenario's in buoyancy",
+  "productName": "Scuba buoyancy calculator",
   "author": "Arend van Waart <arend@studioavw.nl>",
   "private": true,
   "scripts": {

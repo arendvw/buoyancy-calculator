@@ -15,7 +15,7 @@
           Buoyancy calculator
         </q-toolbar-title>
 
-        <div>v{{ $q.version }}</div>
+        <div><input-salinity /></div>
       </q-toolbar>
     </q-header>
 
@@ -47,6 +47,7 @@
 
 <script>
 import EssentialRoute from 'components/EssentialRoute.vue';
+import InputSalinity from 'components/InputSalinity';
 
 const linksData = [
   {
@@ -62,12 +63,6 @@ const linksData = [
     to: 'suit',
   },
   {
-    title: 'Bcd',
-    caption: 'Buoyancy compensator',
-    icon: 'bubble_chart',
-    to: 'bcd',
-  },
-  {
     title: 'Tank',
     caption: 'What does your tank weigh?',
     icon: 'battery_unknown',
@@ -75,7 +70,7 @@ const linksData = [
   },
   {
     title: 'Weights and equipment',
-    caption: 'How much lead do you use?',
+    caption: 'How much does your equipment weigh?',
     icon: 'fitness_center',
     to: 'weights',
   },
@@ -89,7 +84,7 @@ const linksData = [
 
 export default {
   name: 'MainLayout',
-  components: { EssentialRoute },
+  components: { InputSalinity, EssentialRoute },
   data() {
     return {
       leftDrawerOpen: false,
@@ -98,3 +93,32 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+  .page-width {
+    max-width: 1000px;
+  }
+  .width-100-pct {
+    width: 100%;
+  }
+  .max-width-600 {
+    width: 100%;
+    max-width: 600px;
+  }
+  .max-width-500 {
+    width: 100%;
+    max-width: 500px;
+  }
+  .max-width-400 {
+    width: 100%;
+    max-width: 400px;
+  }
+  .max-width-300 {
+    width: 100%;
+    max-width: 300px;
+  }
+  .max-width-100 {
+    width: 100%;
+    max-width: 100px;
+  }
+</style>

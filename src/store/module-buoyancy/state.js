@@ -11,14 +11,25 @@
 export default function () {
   return {
     // age in years
+    // used for lung volume
     age: 35,
     // weight in kg
+    // used for body surface area
     weight: 78,
     // gender = "female" / "male"
+    // used for lung volume
     gender: 'male',
     // height in cm
-    height: 169,
+    // used for lung volume and body surface area
+    height: 185,
+    enabled: true,
     // fat percentage in 0-100
-    fatPercentage: 24,
+    // used for personal buoyancy
+    fatPercentage: 15,
+    salinity: 'fresh',
+    wetsuitPieces: [],
+    tanks: [],
+    weightItems: [],
+    bcdVolume: 20,
   };
 }
