@@ -1,24 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
-        />
-
-        <q-toolbar-title>
-          Buoyancy calculator
-        </q-toolbar-title>
-
-        <div><input-salinity /></div>
-      </q-toolbar>
-    </q-header>
-
+    <navigation-header/>
+    <navigation-footer/>
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
@@ -47,7 +30,8 @@
 
 <script>
 import EssentialRoute from 'components/EssentialRoute.vue';
-import InputSalinity from 'components/InputSalinity';
+import NavigationFooter from 'layouts/NavigationFooter';
+import NavigationHeader from 'layouts/NavigationHeader';
 
 const linksData = [
   {
@@ -84,7 +68,7 @@ const linksData = [
 
 export default {
   name: 'MainLayout',
-  components: { InputSalinity, EssentialRoute },
+  components: { NavigationHeader, NavigationFooter, EssentialRoute },
   data() {
     return {
       leftDrawerOpen: false,
@@ -95,6 +79,15 @@ export default {
 </script>
 
 <style lang="scss">
+  .q-toolbar__title {
+    max-width: 750px;
+  }
+  @media (max-width: $breakpoint-xs-max)
+  {
+    .q-toolbar__title {
+      max-width: 100%;
+    }
+  }
   .page-width {
     max-width: 1000px;
   }
