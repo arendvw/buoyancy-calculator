@@ -36,11 +36,35 @@
       icon="add"
       @click="addStep"
     ></q-btn>
+    <template v-if="help">
+      <q-btn
+        class="help-button"
+        icon="help"
+        size="sm"
+        @click="showHelp = true"
+        round
+        unelevated
+        color="grey-2"
+        text-color="black"
+      >
+      </q-btn>
+      <help-dialog v-model="showHelp">
+        <template v-slot:title>
+          <slot name="help-title"></slot>
+        </template>
+        <template v-slot>
+          <slot name="help"></slot>
+        </template>
+      </help-dialog>
+    </template>
   </div>
 </template>
 
 <script>
+import HelpDialog from 'components/Help/HelpDialog';
+
 export default {
+  components: { HelpDialog },
   props: {
     value: {
       type: Number,
@@ -88,6 +112,15 @@ export default {
       required: false,
       default: NaN,
     },
+    help: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      showHelp: false,
+    };
   },
   methods: {
     bounds(value) {
@@ -135,6 +168,7 @@ export default {
     display: flex;
     align-items: stretch;
     justify-items: flex-start;
+    position: relative;
     label {
       width: 100%;
     }
@@ -148,5 +182,19 @@ export default {
     input[type=number] {
       -moz-appearance:textfield; /* Firefox */
     }
+
+    .help-button {
+      position: absolute;
+      right: -50px;
+      top: 15px;
+    }
+    @media (max-width: $breakpoint-sm-max) {
+      .help-button {
+        position: absolute;
+        right: -35px;
+        top: 5px;
+      }
+    }
   }
+
 </style>

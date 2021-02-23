@@ -1,54 +1,200 @@
 <template>
-  <q-page class="flex">
+  <q-page class="flex page-person-responsive">
     <div class="q-pa-md full-width page-width">
-      <div class="q-gutter-y-md column" style="max-width: 400px;">
-        <div class="q-gutter-s q-pl-xl q-ml-sm">
-          <q-radio v-model="gender" val="female" label="Female" />
-          <q-radio v-model="gender" val="male" label="Male" />
-        </div>
+      <div class="q-gutter-y-md column input-salinity-page" v-if="$q.screen.width <= 500">
+        <input-salinity :is-headline="false"></input-salinity>
+      </div>
+      <div class="q-gutter-y-md column help-margin">
+        <q-select
+          filled
+          label="Gender"
+          v-model="gender"
+          :options="[{ label: 'Female', value: 'female' }, { label: 'Male', value: 'male' }]"
+          map-options
+          :dense="isDense"
+        >
+        </q-select>
         <input-spinner
           v-model="age"
           label="Your age (years)"
           suffix="y"
           :minimum="18"
           :maximum="70"
+          help
+          :dense="isDense"
         >
+          <template v-slot:help-title>
+            Age
+          </template>
+          <template v-slot:help>
+            Your age is used to estimate:
+            <ul>
+              <li>your lung capacity</li>
+              <li>fat percentage</li>
+            </ul>
+          </template>
         </input-spinner>
         <input-spinner
           v-model="height"
           label="Your height (cm)"
           suffix="cm"
+          :minimum="120"
+          :maximum="250"
+          help
+          :dense="isDense"
         >
+          <template v-slot:help-title>
+            Height
+          </template>
+          <template v-slot:help>
+            Your height is used to estimate your
+            <ul>
+              <li>lung capacity</li>
+              <li>volume</li>
+              <li>surface area</li>
+            </ul>
+          </template>
         </input-spinner>
         <input-spinner
           v-model="weight"
           label="Your weight (kg)"
           suffix="kg"
+          help
+          :dense="isDense"
         >
+          <template v-slot:help-title>
+            Weight
+          </template>
+          <template v-slot:help>
+            Your weight is used to estimate your
+            <ul>
+              <li>volume</li>
+              <li>surface area</li>
+              <li>density</li>
+              <li>apparent weight</li>
+            </ul>
+          </template>
         </input-spinner>
+        <q-checkbox label="I know my fat percentage"
+          v-model="fatPercentageManual"
+                    :dense="isDense"
+        >
+        </q-checkbox>
         <input-spinner
           v-model="fatPercentage"
           label="Fat percentage (%)"
           suffix="%"
+          help
+          :disable="!fatPercentageManual"
+          :dense="isDense"
         >
+          <template v-slot:help-title>
+            Fat percentage
+          </template>
+          <template v-slot:help>
+            Fatty tissues float more than other tissues.
+            <template v-if="fatPercentageTable">
+              <table style="width: 100%">
+                <thead>
+                <tr>
+                  <th style="text-align: center"
+
+                        colspan="4">Fat percentage for
+                  <template v-if="gender === 'male'">men</template>
+                  <template v-else>women</template>
+                  <br/>
+                  {{ fatPercentageTable.ageMin }} - {{ fatPercentageTable.ageMax }} year</th></tr>
+                </thead>
+                <tr><td>Low</td><td></td><td>&lt;</td>
+                  <td>{{ fatPercentageTable.low }} %</td></tr>
+                <tr><td>Healthy</td><td>{{ fatPercentageTable.low }} %</td>
+                  <td>-</td>
+                  <td>{{ fatPercentageTable.healthy }} %</td></tr>
+                <tr>
+                  <td>High</td>
+                  <td>{{ fatPercentageTable.healthy }} %</td>
+                  <td> - </td>
+                  <td>{{ fatPercentageTable.high }} %</td>
+                </tr>
+                <tr>
+                  <td>Very high</td>
+                  <td></td>
+                  <td> > </td>
+                  <td>{{ fatPercentageTable.high }} %</td>
+                </tr>
+              </table>
+              <br />
+              Based on your age, weight and height we estimate your
+              fat percentage to be
+              <strong>{{ fatPercentageFromBsi.toFixed(0)  }}%</strong>
+              <br /><br/>
+
+              You can improve the accuraccy of these estimations by measuring your fat percentage.
+              <ul>
+                <li>
+                  <a href="https://fellrnr.com/wiki/Body_Fat_Scales" target="_blank">
+                    Using Body Fat Scales (BIA)
+                  </a>
+                </li>
+                <li>
+                  <a href="https://www.omnicalculator.com/health/army-body-fat"
+                     target="_blank">
+                    Using the US Army Body Fat Calculator
+                  </a>
+                </li>
+                <li>
+                  <a href="https://fellrnr.com/wiki/Skinfold_Calipers" target="_blank">
+                    Using skinfold calipers
+                  </a>
+                </li>
+              </ul>
+            </template>
+          </template>
         </input-spinner>
+
       </div>
       <div class="q-mt-lg">
-        <q-markup-table>
+        <q-markup-table :dense="$q.screen.lt.sm">
           <thead>
           <tr>
-            <th>
-            </th>
-            <th>Lung volume</th>
-            <th>Buoyancy</th>
+            <th colspan="2" class="text-right">Lung volume <help-button>
+              <template v-slot:help-title>
+                Lung volume
+              </template>
+              <template v-slot:help>
+                Lung volume is estimated using [1].<br/>
+                The equations apply to:
+                <ul>
+                  <li>a height range of 1.55 – 1.95m in men</li>
+                  <li>a height range of 1.45 – 1.80m in women</li>
+                  <li>ages 18 – 70 yrs</li>
+                </ul>
+
+                [1] <a href="https://erj.ersjournals.com/content/6/Suppl_16/5">Quanjer, P. H. et al.
+                Lung volumes and forced ventilatory flows.
+                European Respiratory Journal 6, 5–40 (1993) </a>
+              </template>
+            </help-button></th>
+            <th>Buoyancy <help-button>
+              <template v-slot:help-title>
+                Buoyancy
+              </template>
+              <template v-slot:help>
+                Negative numbers sink, positive numbers float. <br /><br />
+
+                <strong>Also known as:</strong><br />
+                The apparent weight, apparent immersed weight, or weight underwater. <br/><br/>
+                <a href="https://en.wikipedia.org/wiki/Buoyancy">Wikipedia on Buoynacy</a>
+              </template>
+            </help-button></th>
           </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Fully inhaled</td>
-              <td class="text-right">
+              <td class="buoyancy-table-name">Fully inhaled</td>
+              <td class="text-right buoyancy-table-lung volume">
                 {{ lungCapacityFullyInhaled.toFixed(1) }} &ell;</td>
-              <td class="text-right">
+              <td class="text-right buoyancy-table-lung buoyancy">
                 <buoyancy :buoyancy="calculateBodyWeight(lungCapacityFullyInhaled,
                 $store.getters['buoyancy/currentWaterDensity'])"></buoyancy></td>
             </tr>
@@ -78,10 +224,9 @@
             </tr>
           </tbody>
         </q-markup-table>
-        <q-card class="my-card q-mt-lg">
+        <q-card class="my-card q-mt-lg" :dense="isDense">
           <q-card-section>
             <p>
-              <br/>
             In <strong>{{ $store.state.buoyancy.salinity }} water</strong>
             your personal buoyancy is approximately
             <strong><buoyancy :buoyancy="calculateBodyWeight(lungCapacityNormallyInhaled,
@@ -117,11 +262,15 @@
 
 import Buoyancy from 'components/Buoyancy';
 import InputSpinner from 'components/InputSpinner';
+import HelpButton from 'components/Help/HelpButton';
+import InputSalinity from 'components/InputSalinity';
 import * as math from '../math';
 
 export default {
   name: 'PagePerson',
-  components: { InputSpinner, Buoyancy },
+  components: {
+    InputSalinity, HelpButton, InputSpinner, Buoyancy,
+  },
   data() {
     return {
     };
@@ -166,12 +315,20 @@ export default {
         return this.$store.dispatch('buoyancy/setPersonProperty', { fatPercentage: value });
       },
     },
+    fatPercentageManual: {
+      get() {
+        return this.$store.state.buoyancy.fatPercentageManual;
+      },
+      set(value) {
+        this.$store.dispatch('buoyancy/setPersonProperty', { fatPercentageManual: value });
+      },
+    },
     gender: {
       get() {
         return this.$store.state.buoyancy.gender;
       },
       set(value) {
-        return this.$store.dispatch('buoyancy/setPersonProperty', { gender: value });
+        return this.$store.dispatch('buoyancy/setPersonProperty', { gender: value.value });
       },
     },
     lungCapacity() {
@@ -193,6 +350,26 @@ export default {
     lungCapacityFullyExhaled() {
       const obj = math.CalculateLungCapacity(this.gender === 'male', this.age, this.height / 100.0);
       return obj.residualVolume;
+    },
+    fatPercentageFromBsi() {
+      return math.CalculateFatPercentageBasedOnBmi(this.gender === 'male',
+        this.age,
+        this.height / 100,
+        this.weight);
+    },
+    fatPercentageTable() {
+      return math.GetFatPercentageForGenderAndAge(this.gender === 'male', this.age);
+    },
+    isDense() {
+      return this.$q.screen.lt.sm;
+    },
+  },
+  watch: {
+    fatPercentageFromBsi(value) {
+      if (!this.fatPercentageManual) {
+        value = Math.max(parseFloat(value), 0);
+        this.$store.dispatch('buoyancy/setPersonProperty', { fatPercentage: value });
+      }
     },
   },
   methods: {
@@ -222,3 +399,26 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+.page-person-responsive {
+  max-width: 550px;
+  .input-salinity-page {
+    display: flex;
+    align-content: end;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 600px) {
+    .stepper .help-button {
+      right: -35px;
+    }
+    .help-margin {
+      max-width: calc(100% - 35px);
+    }
+    .buoyancy-table-name {
+      width: 50px;
+    }
+  }
+}
+
+</style>

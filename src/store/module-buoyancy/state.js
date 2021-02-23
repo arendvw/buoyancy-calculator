@@ -26,6 +26,7 @@ export default function () {
     // fat percentage in 0-100
     // used for personal buoyancy
     fatPercentage: 15,
+    fatPercentageManual: false,
     salinity: 'fresh',
     wetsuitPieces: [],
     tanks: [],

@@ -1,6 +1,6 @@
 <template>
   <q-page class="flex">
-    <div class="q-pa-md full-width page-width flex-center">
+    <div class="q-gutter-y-md q-pa-md full-width page-width flex-center">
       <q-markup-table class="q-mt-md" v-if="false">
         <thead>
           <tr>
@@ -24,7 +24,7 @@
         </tbody>
       </q-markup-table>
 
-      <div class="q-mt-sm">
+      <div>
       <q-select
         filled
         label="Add new piece"
@@ -34,7 +34,7 @@
         placeholder="Add new piece" />
       </div>
 
-      <q-markup-table style="margin-top: 20px; width: 100%" v-if="pieces.length > 0">
+      <q-markup-table class="full-width" v-if="pieces.length > 0">
         <thead>
           <tr>
             <th>Type</th>
@@ -100,7 +100,7 @@
           </tr>
         </tbody>
       </q-markup-table>
-      <q-markup-table class="q-mt-lg buoyancy-depth-table" v-if="pieces.length > 0">
+      <q-markup-table class="buoyancy-depth-table" v-if="pieces.length > 0">
         <thead>
         <tr>
           <th>

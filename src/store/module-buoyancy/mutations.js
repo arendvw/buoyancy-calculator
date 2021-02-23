@@ -3,6 +3,7 @@
  * @param state
  * @param weight
  * @param fatPercentage
+ * @param fatPercentageManual
  * @param height
  * @param age
  * @param gender
@@ -12,6 +13,7 @@
 export function SET_PERSON_PROPERTY(state, {
   weight,
   fatPercentage,
+  fatPercentageManual,
   height,
   age,
   gender,
@@ -22,6 +24,9 @@ export function SET_PERSON_PROPERTY(state, {
   }
   if (fatPercentage !== undefined) {
     state.fatPercentage = fatPercentage;
+  }
+  if (fatPercentageManual !== undefined) {
+    state.fatPercentageManual = fatPercentageManual;
   }
   if (height !== undefined) {
     state.height = height;

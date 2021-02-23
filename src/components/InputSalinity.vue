@@ -1,12 +1,11 @@
 <template>
-  <div class="input-salinity">
+  <div>
     <q-btn-toggle
-      toggle-text-color="primary"
-      toggle-color="white"
+      :toggle-text-color="isHeadline ? 'primary' : 'white'"
+      :toggle-color="isHeadline ? 'white' : 'primary'"
       :value="$store.state.buoyancy.salinity"
       @input="setSalinity"
       size="sm"
-      class="q-ml-lg"
       :options="options"
     />
   </div>
@@ -14,9 +13,14 @@
 
 <script>
 export default {
+  props: {
+    isHeadline: {
+      type: Boolean,
+      required: true,
+    },
+  },
   methods: {
     setSalinity(salinity) {
-      console.log(salinity);
       this.$store.dispatch('buoyancy/updateSalinity', salinity);
     },
   },

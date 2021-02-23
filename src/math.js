@@ -430,7 +430,7 @@ export function CalculateWeightFromFatPercentage(weight, percentage, lungVolume,
 /**
  * Estimate lung volumes for men and women between 18 and 70, based on quanjer, 1993
  *
- * Quanjer 2012 is more accurate for non-caucasian and lager age groups, but does not handle
+ * Quanjer 2012 is more accurate for non-caucasian and lower age groups, but does not handle
  * residual volumes and because of that no total lung capacity.
  *
  * @see https://www.ers-education.org/guidelines/global-lung-function-initiative/gli-resources.aspx
@@ -642,6 +642,80 @@ export function CalculateAgedNeopreneVolumeAtDepth(
   // the original volume of the rubber will not decrease, only the air.
   const originalRubberVolume = originalVolume * (1 - maxAgePercentage);
   return airVolume + originalRubberVolume;
+}
+
+/**
+ * @param isMale
+ * @param age
+ * @param height
+ * @param weight
+ * @returns {number}
+ * @constructor
+ */
+export function CalculateFatPercentageBasedOnBmi(isMale, age, height, weight) {
+  const bmi = weight / (height * height);
+  const gender = isMale ? 1 : 0;
+  return 1.39 * bmi
+    + 0.16 * age
+    - 10.8 * gender - 9;
+}
+
+/**
+ * based on: http://pennshape.upenn.edu/files/pennshape/Body-Composition-Fact-Sheet.pdf
+ */
+export const FatPercentagePerAgeAndGender = [
+  {
+    isMale: false,
+    ageMin: 20,
+    ageMax: 39,
+    low: 21,
+    healthy: 33,
+    high: 39.5,
+  },
+  {
+    isMale: false,
+    ageMin: 40,
+    ageMax: 59,
+    low: 23,
+    healthy: 34,
+    high: 40,
+  },
+  {
+    isMale: false,
+    ageMin: 60,
+    ageMax: 79,
+    low: 24,
+    healthy: 36,
+    high: 41.5,
+  },
+  {
+    isMale: true,
+    ageMin: 20,
+    ageMax: 39,
+    low: 8,
+    healthy: 20,
+    high: 25,
+  },
+  {
+    isMale: true,
+    ageMin: 40,
+    ageMax: 59,
+    low: 10,
+    healthy: 22,
+    high: 28.5,
+  },
+  {
+    isMale: true,
+    ageMin: 60,
+    ageMax: 79,
+    low: 10,
+    healthy: 25,
+    high: 30,
+  },
+];
+export function GetFatPercentageForGenderAndAge(isMale, age) {
+  return FatPercentagePerAgeAndGender
+    .find((obj) => age >= obj.ageMin && age <= obj.ageMax && obj.isMale === isMale);
 }
 
 export function CalculateSuit({

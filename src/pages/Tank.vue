@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex" style="align-content: start">
-    <div class="full-width page-width">
-      <div class="q-pa-md q-gutter-y-md column">
+    <div class="q-pa-md q-gutter-y-md full-width page-width">
+      <div class=" column">
         <q-select
           filled
           label="Add new tank"
@@ -27,102 +27,7 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-      <div class="q-pa-md q-gutter-y-md column full-width ">
-        <q-markup-table v-if="false">
-          <thead>
-          <tr>
-            <th>Tank volume (&ell;)</th>
-            <th>Material</th>
-            <th>Empty weight (kg)</th>
-            <th>Operating pressure (bar)</th>
-            <th>Gas mix</th>
-            <th>Full</th>
-            <th>Empty</th>
-            <th></th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="(tank, index) in tanks" :key="index">
-            <td class="text-right" style="width: 40px">
-              <input-spinner
-                :value="tank.volume"
-                @input="setVolume(index, $event)"
-                :decimals="1"
-                suffix="ℓ"
-                dense
-                :minimum="0"
-              >
-              </input-spinner>
-              <q-checkbox
-                :value="tank.isDouble"
-                @input="setIsDouble(index, $event)"
-                label="Double"
-              />
-            </td>
-            <td style="width: 40px">
-              <q-btn-toggle
-                :value="tank.material"
-                @input="setMaterial(index, $event)"
-                size="sm"
-                class="q-ml-lg"
-                toggle-color="primary"
-                :options="materialOptions"
-              />
-            </td>
-            <td class="text-right" style="width: 40px">
-              <input-spinner
-                :value="tank.weight"
-                @input="setWeight(index, $event)"
-                :decimals="1"
-                :step="0.5"
-                suffix="kg"
-                dense
-                :minimum="0"
-              ></input-spinner>
-            </td>
-            <td class="text-right" style="width: 40px">
-              <input-spinner
-                :value="tank.workingPressure"
-                @input="setWorkingPressure(index, $event)"
-                :decimals="0"
-                :step="10"
-                suffix="bar"
-                dense
-                :minimum="0"
-              ></input-spinner>
-            </td>
-            <td>
-              <q-select
-                dense
-                filled
-                @input="setGas(index, $event)"
-                :value="tank.gasMixture"
-                :options="gasses"
-                map-options
-              />
-            </td>
-            <td class="text-right">
-              {{
-                math.CalculateTankBuoyancy(tank,
-                  tank.workingPressure,
-                  $store.getters['buoyancy/currentWaterDensity'])
-                  .toFixed(1)
-              }} kg
-            </td>
-            <td class="text-right">
-              {{
-                math.CalculateTankBuoyancy(tank,
-                  0,
-                  $store.getters['buoyancy/currentWaterDensity'])
-                  .toFixed(1)
-              }} kg
-            </td>
-            <td style="width: 25px">
-            </td>
-          </tr>
-          </tbody>
-        </q-markup-table>
-        <q-markup-table>
+      <q-markup-table>
           <thead>
           <tr>
             <th colspan="3">
@@ -196,13 +101,11 @@
             </td>
           </tr>
           </tbody>
-        </q-markup-table>
-      </div>
+      </q-markup-table>
     </div>
   </q-page>
 </template>
 <script>
-import InputSpinner from 'components/InputSpinner';
 import Buoyancy from 'components/Buoyancy';
 import EditTank from 'pages/EditTank';
 import * as math from '../math';
@@ -212,7 +115,6 @@ export default {
   components: {
     EditTank,
     Buoyancy,
-    InputSpinner,
   },
   data() {
     return {

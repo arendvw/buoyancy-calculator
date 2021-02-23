@@ -1,13 +1,14 @@
 export function setPersonProperty(context, {
   weight,
   fatPercentage,
+  fatPercentageManual,
   height,
   age,
   gender,
   enabled,
 }) {
   context.commit('SET_PERSON_PROPERTY', {
-    weight, fatPercentage, height, age, gender, enabled,
+    weight, fatPercentage, fatPercentageManual, height, age, gender, enabled,
   });
 }
 export function addWetsuitPiece(context, {
