@@ -1,29 +1,6 @@
 <template>
   <q-page class="flex">
     <div class="q-gutter-y-md q-pa-md full-width page-width flex-center">
-      <q-markup-table class="q-mt-md" v-if="false">
-        <thead>
-          <tr>
-            <th colspan="2">Input values</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Your height</td>
-            <td style="text-align: right">{{ height }} cm</td>
-          </tr>
-          <tr>
-            <td>Your weight</td>
-            <td style="text-align: right">{{ weight }} kg</td>
-          </tr>
-          <tr>
-            <td>Body surface area (BSA)</td>
-            <td style="text-align: right">{{ bsaMosteller.toFixed(2) }} m<sup>2</sup>
-            </td>
-          </tr>
-        </tbody>
-      </q-markup-table>
-
       <div>
       <q-select
         filled
@@ -100,6 +77,11 @@
           </tr>
         </tbody>
       </q-markup-table>
+      <q-card>
+      <q-list separator v-if="pieces.length > 0">
+        <SuitItem :index="idx" v-for="(item, idx) in pieces" :key="idx" />
+      </q-list>
+      </q-card>
       <q-markup-table class="buoyancy-depth-table" v-if="pieces.length > 0">
         <thead>
         <tr>
@@ -130,6 +112,7 @@
 <script>
 import Buoyancy from 'components/Buoyancy';
 import InputSpinner from 'components/InputSpinner';
+import SuitItem from 'pages/SuitItem';
 import * as math from '../math';
 
 /**
@@ -165,7 +148,7 @@ import * as math from '../math';
 
 export default {
   name: 'PageWetsuit',
-  components: { InputSpinner, Buoyancy },
+  components: { SuitItem, InputSpinner, Buoyancy },
   data() {
     return {
       optionToAdd: null,
@@ -371,5 +354,9 @@ export default {
    .stepper label {
      min-width: 90px;
    }
+ }
+
+ @media (max-width: $breakpoint-sm-min) {
+   //
  }
 </style>

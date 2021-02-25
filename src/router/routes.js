@@ -1,17 +1,49 @@
 const routes = [
   {
     path: '/',
+    redirect: '/person',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/Person.vue') },
-      { path: 'person', component: () => import('pages/Person.vue') },
-      { path: 'suit', component: () => import('pages/Suit.vue') },
-      { path: 'bcd', component: () => import('pages/Bcd.vue') },
-      { path: 'tank', component: () => import('pages/Tank.vue') },
-      { path: 'tank/:tankId', name: 'editTank', component: () => import('pages/Tank.vue') },
-      { path: 'equipment', component: () => import('pages/Equipment.vue') },
-      { path: 'weights', component: () => import('pages/Weights.vue') },
-      { path: 'report', component: () => import('pages/Report.vue') },
+      {
+        name: 'person',
+        path: 'person',
+        component: () => import('pages/Person.vue'),
+      },
+      {
+        name: 'suit',
+        path: 'suit',
+        component: () => import('pages/Suit.vue'),
+      },
+      {
+        name: 'bcd',
+        path: 'bcd',
+        component: () => import('pages/Bcd.vue'),
+      },
+      {
+        name: 'tank',
+        path: 'tank',
+        component: () => import('pages/Tank.vue'),
+      },
+      {
+        name: 'editTank',
+        path: 'tank/:tankId',
+        component: () => import('pages/Tank.vue'),
+      },
+      {
+        name: 'equipment',
+        path: 'equipment',
+        component: () => import('pages/Equipment.vue'),
+      },
+      {
+        name: 'weights',
+        path: 'weights',
+        component: () => import('pages/Weights.vue'),
+      },
+      {
+        name: 'report',
+        path: 'report',
+        component: () => import('pages/Report.vue'),
+      },
     ],
   },
 
