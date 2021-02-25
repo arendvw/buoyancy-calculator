@@ -7,7 +7,7 @@
           round
           icon="menu"
           aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
+          @click="$emit('toggle')"
       />
 
       <q-toolbar-title>

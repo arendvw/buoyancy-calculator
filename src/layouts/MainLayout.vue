@@ -1,12 +1,14 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <navigation-header/>
+    <navigation-header
+      @toggle="leftDrawerOpen = !leftDrawerOpen">
+    </navigation-header>
     <navigation-footer/>
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      content-class="bg-grey-1"
+      content-class="bg-grey-2"
     >
       <q-list>
         <q-item-label
@@ -23,7 +25,9 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <div class="page-container">
+        <router-view />
+      </div>
     </q-page-container>
   </q-layout>
 </template>
@@ -38,31 +42,34 @@ const linksData = [
     title: 'Your weight',
     caption: 'What is your buoyancy?',
     icon: 'accessibility',
-    to: 'person',
+    to: { name: 'person' },
   },
   {
     title: 'Your suit',
     caption: 'What does your suit weigh?',
     icon: 'ac_unit',
-    to: 'suit',
+    to: { name: 'suit' },
   },
   {
     title: 'Tank',
     caption: 'What does your tank weigh?',
     icon: 'battery_unknown',
-    to: 'tank',
+    to: { name: 'tank' },
+
   },
   {
     title: 'Weights and equipment',
     caption: 'How much does your equipment weigh?',
     icon: 'fitness_center',
-    to: 'weights',
+    to: { name: 'weights' },
+
   },
   {
     title: 'Report',
     caption: 'Calculate your buoyancy',
     icon: 'receipt',
-    to: 'report',
+    to: { name: 'report' },
+
   },
 ];
 
@@ -79,6 +86,10 @@ export default {
 </script>
 
 <style lang="scss">
+
+  #q-app {
+    background-color: $grey-1;
+  }
   .q-toolbar__title {
     max-width: 750px;
   }
@@ -87,6 +98,14 @@ export default {
     .q-toolbar__title {
       max-width: 100%;
     }
+  }
+  .page-container {
+    max-width: 1000px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    border-right: solid 1px $grey-3;
   }
   .page-width {
     max-width: 1000px;

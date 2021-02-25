@@ -35,7 +35,8 @@ export default {
     },
 
     to: {
-      type: String,
+      // eslint-disable-next-line no-bitwise
+      type: Object,
       required: true,
     },
 
