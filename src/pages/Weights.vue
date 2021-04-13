@@ -1,6 +1,9 @@
 <template>
-  <q-page class="flex">
-    <div class="q-pa-md q-gutter-y-md column full-width page-width">
+  <q-page class="page-container">
+    <div class="column-container">
+      <div class="row q-mb-md flex justify-end" v-if="$q.screen.width <= 500">
+        <input-salinity :is-headline="false"></input-salinity>
+      </div>
       <q-select
         filled
         label="Add new item"
@@ -8,17 +11,17 @@
         :value="null"
         :options="optionsWithLabel"
         placeholder="Add new tank"/>
-      <q-markup-table class="full-width">
+      <q-markup-table
+        :dense="isDense"
+        class="full-width q-mt-lg">
         <thead>
           <tr>
             <th>Name</th>
-            <th>Material</th>
-            <th>Weight</th>
             <th v-if="showCalculations">Volume</th>
             <th v-if="showCalculations">Density</th>
-            <th v-if="$store.state.buoyancy.salinity === 'fresh'">Buoyancy (fresh water)</th>
-            <th v-if="$store.state.buoyancy.salinity === 'salt'">Buoyancy (salt water)</th>
-            <th colspan="2"></th>
+            <th v-if="!isDense">Weight</th>
+            <th>Buoyancy</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -26,9 +29,10 @@
             style="cursor: pointer"
             @click="edit(index)"
         >
-          <td>{{ weightItem.name }}</td>
-          <td>{{ weightItem.material }}</td>
-          <td class="text-right">{{ weightItem.weight.toFixed(1) }} kg</td>
+          <td style="white-space: normal; overflow: hidden; max-width: 150px;">
+            {{ math.GetWeightItemLabel(weightItem) }}
+          </td>
+          <td v-if="!isDense" class="text-right">{{ weightItem.weight.toFixed(1) }} kg</td>
           <td v-if="showCalculations"
               class="text-right">{{ weightItem.volume.toFixed(1) }} &ell;</td>
           <td v-if="showCalculations"
@@ -39,13 +43,13 @@
           <td class="text-right" v-if="$store.state.buoyancy.salinity === 'salt'">
             <buoyancy :buoyancy="weightItem.buoyancySaltWater"/>
           </td>
-          <td style="width: 40px">
+          <td style="width: 12px">
             <q-btn
+              color="grey-7"
               flat dense label="edit"
               @click="edit(index)"/>
-          </td>
-          <td style="width: 12px">
             <q-btn size="12px" flat dense round icon="delete"
+                   color="grey-7"
                    @click.stop="deleteIdx(index)"/>
           </td>
         </tr>
@@ -53,7 +57,7 @@
       </q-markup-table>
       <q-dialog v-model="showEdit">
         <q-card>
-          <q-card-section>
+          <q-card-section v-if="false">
             <div class="text-h6" v-if="currentWeightItem!=null">
               {{ currentWeightItem.name }}
             </div>
@@ -62,7 +66,7 @@
             >Define by {{ currentWeightItem.mode }}</div>
           </q-card-section>
           <EditWeight
-            :is-dense="isDense"
+            :dense="isDense"
             :index="currentWeightIndex"
           />
           <q-card-actions align="right" class="bg-white text-teal">
@@ -77,6 +81,7 @@
 <script>
 import Buoyancy from 'components/Buoyancy';
 import EditWeight from 'pages/EditWeight';
+import InputSalinity from 'components/InputSalinity';
 import * as math from '../math';
 
 export default {
@@ -85,11 +90,11 @@ export default {
     return {
       currentWeightIndex: null,
       showEdit: false,
-      isDense: false,
       showCalculations: false,
     };
   },
   components: {
+    InputSalinity,
     EditWeight,
     Buoyancy,
   },
@@ -118,7 +123,6 @@ export default {
         obj.volume,
         math.DensitySaltwater,
       );
-      console.log(obj);
       return obj;
     },
     edit(index) {
@@ -131,6 +135,9 @@ export default {
     },
   },
   computed: {
+    isDense() {
+      return this.$q.screen.lt.sm;
+    },
     currentWeightItem() {
       if (this.currentWeightIndex < this.$store.state.buoyancy.weightItems.length) {
         return this.$store.state.buoyancy.weightItems[this.currentWeightIndex];
@@ -146,6 +153,9 @@ export default {
     },
     weights() {
       return this.$store.state.buoyancy.weightItems;
+    },
+    math() {
+      return math;
     },
   },
 };

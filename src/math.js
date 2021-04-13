@@ -330,10 +330,11 @@ export function CalculateGasWeight({ o2, he, ar }, temperatureCelsius, volume, p
 }
 
 export function CalculateTankGasWeight({
-  o2, he, ar, volume, isDouble, workingPressure,
+  gasMixture, volume, isDouble, workingPressure,
 }) {
+  const gas = GasMixtures[gasMixture];
   volume = isDouble ? volume * 2 : volume;
-  return CalculateGasWeight({ o2, he, ar }, 15, volume, workingPressure) / 1000;
+  return CalculateGasWeight(gas, 15, volume, workingPressure) / 1000;
 }
 
 export function CalculateTankWeightWithValve({ includeValve, isDouble, weight }) {
@@ -405,6 +406,14 @@ export function GetTankFullLabel({
   const double = isDouble ? 'Double' : '';
   const materialName = Materials[material].name;
   return `${double} ${volume.toFixed(1)} ℓ ${materialName.toLowerCase()} (${workingPressure} bar)`;
+}
+
+export function GetTankShortLabel({
+  volume, isDouble, material,
+}) {
+  const double = isDouble ? 'Double' : '';
+  const materialName = Materials[material].name;
+  return `${double} ${volume.toFixed(1)} ℓ ${materialName.toLowerCase()}`;
 }
 
 /**
@@ -584,15 +593,17 @@ export function RuleOfNines(bodySurfaceArea) {
   };
   area.fullBody = area.upperArms + area.lowerArms + area.torso + area.upperLegs + area.lowerLegs;
   area.fullBodyHoodie = area.upperArms + area.lowerArms
-    + area.torso + area.upperLegs + area.lowerLegs;
+    + area.torso + area.upperLegs + area.lowerLegs
+    + area.head * (2 / 3);
   area.shorty = area.butt + area.upperLegs * 0.66 + area.upperArms * 0.66;
-  area.shortyHooded = area.butt + area.upperLegs * 0.66 + area.upperArms * 0.66 + area.head;
+  area.shortyHooded = area.butt + area.upperLegs * 0.66 + area.upperArms * 0.66
+    + area.head * (2 / 3);
   area.shorts = area.butt + area.upperLegs * 0.66;
   area.shortSleeveShirt = area.torso + area.upperArms * 0.66;
   area.longSleeveShirt = area.torso + area.upperArms + area.lowerArms;
   area.sleevelessShirt = area.torso + area.upperArms + area.lowerArms;
   area.pants = area.butt + area.upperLegs + area.lowerLegs;
-  area.cap = area.head;
+  area.cap = area.head * (2 / 3); // There's a pretty big hole to look through..
   area.gloves = area.hands;
   area.shoes = area.feet;
   return area;
@@ -618,8 +629,10 @@ export function CalculateNeopreneMass(area, originalThickness, maxAirPercentage)
  * @param minAgePercentage
  * @param pressure in ATA/Bar
  * @return Volume of the wetsuit in liters
+ * ^ Monji K, Nakashima K, Sogabe Y, Miki K, Tajima F, Shiraki K (1989). "Changes in insulation of wetsuits during repetitive exposure to pressure". Undersea Biomed Res 16 (4): 313–9. PMID 2773163. http://archive.rubicon-foundation.org/2518. Retrieved 2011-04-13.
  * http://archive.rubicon-foundation.org/xmlui/bitstream/handle/123456789/2518/2773163.pdf?sequence=1
  * https://www.researchgate.net/publication/230971354_Thermal_conductivity_and_compressive_strain_of_foam_neoprene_insulation_under_hydrostatic_pressure
+ * Bardy, Erik, Joseph Mollendorf, and David Pendergast. “A Comparison of the Thermal Resistance of a Foam Neoprene Wetsuit to a Wetsuit Fabricated from Aerogel-Syntactic Foam Hybrid Insulation.” Journal of Physics D: Applied Physics 39 (September 1, 2006): 4068. https://doi.org/10.1088/0022-3727/39/18/018.
  *
  * Anecdotal evidence for this happening:
  * https://www.scubaboard.com/community/threads/wetsuit-buoyancy-character-old-vs-new.305351/
@@ -731,6 +744,24 @@ export function CalculateSuit({
     minAirPercentage,
     pressure) + (area * underwearThickness);
   return { mass, volume };
+}
+
+export function CalculateAgedThickness({
+  area, thickness, maxAirPercentage, minAirPercentage, agePercentage,
+}, pressure) {
+  const mass = CalculateNeopreneMass(area,
+    thickness,
+    maxAirPercentage);
+  const volume = CalculateAgedNeopreneVolumeAtDepth(area,
+    thickness,
+    agePercentage / 100,
+    maxAirPercentage,
+    minAirPercentage,
+    pressure);
+  const agedThickness = volume / area;
+  return {
+    mass, volume, agedThickness, area,
+  };
 }
 export const WeightItems = [
   {

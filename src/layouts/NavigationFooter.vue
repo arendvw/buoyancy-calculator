@@ -39,7 +39,7 @@ const routes = [
   },
   {
     name: 'weights',
-    title: 'Weights and equipment',
+    title: 'Equipment',
   },
   {
     name: 'report',
@@ -95,5 +95,8 @@ export default {
     .q-btn {
       min-width: 150px;
     }
+  }
+  .q-footer {
+    max-width: 1000px;
   }
 </style>

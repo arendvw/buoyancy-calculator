@@ -4,6 +4,7 @@
       <q-input
         filled
         label="Name"
+        :dense="dense"
         :value="weightItem.name"
         @input="setName(index, $event)"
         ></q-input>
@@ -20,7 +21,37 @@
         :minimum="0"
       ></input-spinner>
     </div>
+    <div class="input-row q-mt-lg">
+      <input-select
+        label="Buoyancy"
+        :options="[
+          {
+            label: 'Calculate from material',
+            value: 'material'
+          },
+          {
+            label: 'Calculate from density',
+            value: 'density',
+          },
+          {
+            label: 'Calculate from Volume',
+            value: 'volume',
+          },
+          {
+            label: 'Calculate from buoyancy',
+            value: 'buoyancy',
+          },
+        ]"
+        map-options
+        emit-value
+        :dense="dense"
+        :value="weightItem.mode"
+        @input="setMode(index, $event)"
+      >
+      </input-select>
+    </div>
     <q-tabs
+      v-if="false"
       :value="weightItem.mode"
       @input="setMode(index, $event)"
       dense
@@ -84,8 +115,7 @@
         :minimum="-weightItem.weight+0.1"
       />
     </div>
-    <div class="input-row" v-if="weightItem.mode === 'buoyancy'
-     && $store.state.buoyancy.salinity === 'salt'">
+    <div class="input-row" v-if="$store.state.buoyancy.salinity === 'salt'">
       <input-spinner
         label="Buoyancy (salt water)"
         :dense="dense"
@@ -97,7 +127,7 @@
         :minimum="-weightItem.weight+0.1"
       />
     </div>
-    <q-markup-table flat class="q-mt-sm">
+    <q-markup-table flat class="q-mt-sm" wrap-cells>
       <tbody>
       <tr v-if="weightItem.mode === 'buoyancy'">
         <td colspan="2">
@@ -117,9 +147,10 @@
 import InputSpinner from 'components/InputSpinner';
 import * as math from 'src/math';
 import Buoyancy from 'components/Buoyancy';
+import InputSelect from 'components/InputSelect';
 
 export default {
-  components: { Buoyancy, InputSpinner },
+  components: { InputSelect, Buoyancy, InputSpinner },
   props: {
     dense: {
       type: Boolean,

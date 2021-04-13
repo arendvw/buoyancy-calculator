@@ -11,6 +11,11 @@
       content-class="bg-grey-2"
     >
       <q-list>
+        <q-item v-if="$q.screen.width <= 500 && false">
+          <q-item-section style="padding-left: 55px">
+            <input-salinity :is-headline="false"></input-salinity>
+          </q-item-section>
+        </q-item>
         <q-item-label
           header
           class="text-grey-8"
@@ -26,7 +31,7 @@
 
     <q-page-container>
       <div class="page-container">
-        <router-view />
+          <router-view />
       </div>
     </q-page-container>
   </q-layout>
@@ -36,6 +41,7 @@
 import EssentialRoute from 'components/EssentialRoute.vue';
 import NavigationFooter from 'layouts/NavigationFooter';
 import NavigationHeader from 'layouts/NavigationHeader';
+import InputSalinity from 'components/InputSalinity';
 
 const linksData = [
   {
@@ -75,7 +81,9 @@ const linksData = [
 
 export default {
   name: 'MainLayout',
-  components: { NavigationHeader, NavigationFooter, EssentialRoute },
+  components: {
+    InputSalinity, NavigationHeader, NavigationFooter, EssentialRoute,
+  },
   data() {
     return {
       leftDrawerOpen: false,
@@ -132,5 +140,38 @@ export default {
   .max-width-100 {
     width: 100%;
     max-width: 100px;
+  }
+
+  .page-container {
+    display: flex;
+    align-content: center;
+  }
+  .column-container {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    padding: 15px;
+  }
+  @media (max-width: 550px) {
+    .column-container {
+      width: 100%;
+    }
+  }
+
+  @media (min-width: 550px) {
+    .column-container {
+      width: 550px;
+    }
+  }
+
+  .buoyancy-depth-table {
+    td:nth-child(2), td:nth-child(3) {
+      text-align: right;
+      max-width: 50px;
+    }
+
+    .stepper label {
+      min-width: 90px;
+    }
   }
 </style>

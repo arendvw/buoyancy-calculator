@@ -1,86 +1,40 @@
 <template>
-  <q-page class="flex">
-    <div class="q-gutter-y-md q-pa-md full-width page-width flex-center">
-      <div>
-      <q-select
-        filled
-        label="Add new piece"
-        @input="addOption"
-        :value="null"
-        :options="options"
-        placeholder="Add new piece" />
-      </div>
-
-      <q-markup-table class="full-width" v-if="pieces.length > 0">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Thickness</th>
-            <th>Underwear</th>
-            <th>Condition (insulation, flexibility)</th>
-            <th>Buoyancy</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, idx) in pieces" :key="idx">
-            <td>
-              {{ item.label }}
-            </td>
-            <td>
-              <input-spinner
-                v-if="item.hasNeoprene"
-                suffix="mm"
-                :value="item.thickness"
-                @input="setThickness(idx, $event)"
-                :step="0.5"
-                :decimals="1"
-                :minimum="0"
-                :maximum="20"
-                :dense="true"
-              >
-              </input-spinner>
-            </td>
-            <td>
-              <input-spinner
-                v-if="item.isDry"
-                suffix="mm"
-                :value="item.underwearThickness"
-                @input="setUnderwearThickness(idx, $event)"
-                :step="0.5"
-                :decimals="1"
-                :minimum="0"
-                :maximum="40"
-                :dense="true"
-              >
-              </input-spinner>
-            </td>
-            <td>
-              <q-rating
-                filled
-                v-if="item.hasNeoprene"
-                :value="item.agePercentage/20"
-                @input="setAgePercentage(idx,$event*20)"
-                size="2em"
-                color="green-5"
-                icon="star_border"
-                icon-selected="star"
-              />
-            </td>
-            <td class="text-right">
-              <buoyancy :buoyancy="computeItemAtPressure(1,
-              $store.getters['buoyancy/currentWaterDensity'],
-              idx)" />
-            </td>
-            <td>
-              <q-btn size="12px" flat dense round icon="delete" @click="deleteIdx(idx)" />
-            </td>
-          </tr>
-        </tbody>
-      </q-markup-table>
+  <q-page class="page-container">
+    <div class="column-container">
+    <div class="row q-mb-md flex justify-end" v-if="$q.screen.width <= 500">
+      <input-salinity :is-headline="false"></input-salinity>
+    </div>
+    <q-dialog v-model="showEdit">
       <q-card>
-      <q-list separator v-if="pieces.length > 0">
-        <SuitItem :index="idx" v-for="(item, idx) in pieces" :key="idx" />
-      </q-list>
+        <q-card-section>
+          <div class="text-h6" v-if="currentItem">
+            {{ currentItem.label }}
+          </div>
+        </q-card-section>
+        <suit-edit
+          :index="currentIndex"
+        />
+        <q-card-actions align="right" class="bg-white text-teal">
+          <q-btn flat label="Close" v-close-popup/>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <div class="q-gutter-y-md flex-center">
+      <div>
+        <q-select
+          filled
+          label="Add new piece"
+          @input="addOption"
+          :value="null"
+          :options="options"
+          placeholder="Add new piece"/>
+      </div>
+      <q-card>
+        <q-list separator v-if="pieces.length > 0">
+          <SuitItem
+            @click="showEdit = true; currentIndex = idx;"
+            :index="idx" v-for="(item, idx) in pieces" :key="idx"/>
+        </q-list>
       </q-card>
       <q-markup-table class="buoyancy-depth-table" v-if="pieces.length > 0">
         <thead>
@@ -94,25 +48,27 @@
         </tr>
         </thead>
         <tbody>
-          <tr v-for="(depth, idx) in depths" :key="idx">
-            <td class="text-right">
-              {{ depth }} m
-            </td>
-            <td>
-              <buoyancy :buoyancy="computeAtPressure(1+depth/10,
-                $store.getters['buoyancy/currentWaterDensity'])"></buoyancy>
-            </td>
-          </tr>
+        <tr v-for="(depth, idx) in depths" :key="idx">
+          <td class="text-right">
+            {{ depth }} m
+          </td>
+          <td>
+            <buoyancy :buoyancy="computeAtPressure(1+depth/10,
+              $store.getters['buoyancy/currentWaterDensity'])"></buoyancy>
+          </td>
+        </tr>
         </tbody>
       </q-markup-table>
+    </div>
     </div>
   </q-page>
 </template>
 
 <script>
 import Buoyancy from 'components/Buoyancy';
-import InputSpinner from 'components/InputSpinner';
 import SuitItem from 'pages/SuitItem';
+import SuitEdit from 'pages/SuitEdit';
+import InputSalinity from 'components/InputSalinity';
 import * as math from '../math';
 
 /**
@@ -129,7 +85,7 @@ import * as math from '../math';
  the overall density will approach the density of pure neoprene
  rubber.
 
- 1.2MPA = 12 ata / 12 bar
+ 1.2MPA = 12 ata / 12 bar = 120m depth
 
  Table 5, https://www.researchgate.net/publication/230971354_Thermal_conductivity_and_compressive_strain_of_foam_neoprene_insulation_under_hydrostatic_pressure/link/542da9c00cf277d58e8d106d/download
  Thermal conductivity and compressive strain of foam neoprene insulation under hydrostatic pressure
@@ -141,16 +97,23 @@ import * as math from '../math';
  - Neoprene rubber weighs 1000kg / m3. (± 100g/m³)
  - New suits contain 75% air = 250kg / m³ rubber
  - The model is: older suits loose air.
-  - A 7mm suit contains 75% air when it's new, but loses volume over time.
-  - Meaning that its density changes and it's weight under water,
-    but it's weight above water does not. (The amount of rubber stays the same)
+ - A 7mm suit contains 75% air when it's new, but loses volume over time.
+ - Meaning that its density changes and it's weight under water,
+ but it's weight above water does not. (The amount of rubber stays the same)
  */
 
 export default {
   name: 'PageWetsuit',
-  components: { SuitItem, InputSpinner, Buoyancy },
+  components: {
+    InputSalinity,
+    SuitEdit,
+    SuitItem,
+    Buoyancy,
+  },
   data() {
     return {
+      showEdit: false,
+      currentIndex: -1,
       optionToAdd: null,
       depths: [
         0, 6, 12, 18, 24, 30,
@@ -221,6 +184,9 @@ export default {
     };
   },
   computed: {
+    ruleOfNinesArea() {
+      return math.RuleOfNines(this.bsaMosteller);
+    },
     height() {
       return this.$store.state.buoyancy.height;
     },
@@ -235,6 +201,9 @@ export default {
     },
     pieces() {
       return this.$store.state.buoyancy.wetsuitPieces;
+    },
+    currentItem() {
+      return this.$store.state.buoyancy.wetsuitPieces[this.currentIndex];
     },
   },
   methods: {
@@ -346,17 +315,5 @@ export default {
 };
 </script>
 <style lang="scss">
- .buoyancy-depth-table {
-   td:nth-child(2), td:nth-child(3) {
-     text-align: right;
-     max-width: 50px;
-   }
-   .stepper label {
-     min-width: 90px;
-   }
- }
 
- @media (max-width: $breakpoint-sm-min) {
-   //
- }
 </style>

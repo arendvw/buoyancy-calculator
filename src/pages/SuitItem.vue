@@ -1,77 +1,53 @@
 <template>
-  <q-item class="q-pa-md">
-    <div class="col-grow">
-      <q-item-label lines="1" class="flex">
-        <div class="col-grow">
-          <strong>{{ item.label }}</strong>
-        </div>
-      </q-item-label>
-      <div class="q-mt-md" v-if="item.hasNeoprene">
-        <input-spinner
-            suffix="mm"
-            label="Thickness"
-            v-model="thickness"
-            :step="0.5"
-            :decimals="1"
-            :minimum="0"
-            :maximum="20"
-            :dense="$q.screen.lt.sm"
-
-        >
-        </input-spinner>
-      </div>
-      <div class="q-mt-md" v-if="item.isDry">
-        <input-spinner
-            label="Thickness underwear"
-            v-if="item.isDry"
-            suffix="mm"
-            v-model="underwearThickness"
-            :step="0.5"
-            :decimals="1"
-            :minimum="0"
-            :maximum="40"
-            :dense="$q.screen.lt.sm"
-        >
-        </input-spinner>
-      </div>
-      <div class="q-mt-md flex justify-end" v-if="item.hasNeoprene">
-        <div
-            style="text-align: left; flex-grow: 1; font-size: 13px; padding-top: 5px">
-          Condition (insulation, flexibility)
-        </div>
-        <q-rating
-            filled
-            v-model="agePercentage"
-            size="2em"
-            color="green-5"
-            icon="star_border"
-            icon-selected="star"
-        />
+  <div class="q-item-type q-pa-md suit-item-card">
+    <div class="title"
+         @click="$emit('click')">
+      <strong>{{ item.label }}</strong>
+      <div class="underwear-thickness "
+           v-if="item.isDry || item.hasNeoprene">
+        <template v-if="item.hasNeoprene">
+          {{ thickness.toFixed(1) }} mm<template v-if="item.isDry">, </template>
+        </template>
+        <template v-if="item.isDry">
+          underwear
+          {{ underwearThickness.toFixed(1) }} mm
+        </template>
       </div>
     </div>
     <div class="weight-button">
       <div>
         <buoyancy :buoyancy="buoyancy"/>
-        <q-btn size="12px"
-               flat
-               dense
-               round
-               icon="delete"
-               @click="deletePiece"
-        />
       </div>
     </div>
-  </q-item>
+    <div class="edit-buttons">
+      <div>
+      <q-btn
+        flat
+        color="grey-7"
+        dense
+        @click="$emit('click')"
+      >Edit</q-btn>
+      </div>
+      <div>
+      <q-btn size="12px"
+             flat
+             dense
+             round
+             color="grey-7"
+             icon="delete"
+             @click="deletePiece"
+      />
+      </div>
+    </div>
+  </div>
 </template>
 <script>
 import Buoyancy from 'components/Buoyancy';
-import InputSpinner from 'components/InputSpinner';
 import * as math from 'src/math';
 
 export default {
   components: {
     Buoyancy,
-    InputSpinner,
   },
   props: {
     index: {
@@ -120,6 +96,10 @@ export default {
       return this.computeItemAtPressure(1,
         this.$store.getters['buoyancy/currentWaterDensity']);
     },
+    mass() {
+      const { mass } = math.CalculateSuit(this.item, 1);
+      return mass;
+    },
   },
   methods: {
     // remap value?
@@ -130,7 +110,9 @@ export default {
       });
     },
     deletePiece() {
-      this.$store.dispatch('buoyancy/deleteWetsuitPiece', this.index);
+      setTimeout(() => {
+        this.$store.dispatch('buoyancy/deleteWetsuitPiece', this.index);
+      }, 20);
     },
     computeItemAtPressure(pressure, waterDensity) {
       // assumtion: old and new wetsuits weigh the same.
@@ -142,13 +124,45 @@ export default {
 </script>
 <style lang="scss">
 .weight-button {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
-  justify-content: end;
+  justify-content: center;
+  align-items: end;
   padding-left: 10px;
+  grid-row: 1/3;
 }
 
-@media (max-width: $breakpoint-sm-min) {
-  //
+.edit-buttons {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: end;
+  align-items: center;
+  padding-left: 10px;
+  grid-row: 1/3;
+}
+
+.suit-item-card {
+  strong {
+    font-weight: 500;
+  }
+  display: grid;
+  grid-template-columns: 1fr 75px 75px;
+  .title {
+    grid-row: 1/3;
+    grid-column: 1;
+  }
+  cursor: pointer;
+  &:hover {
+    background-color: $grey-2;
+  }
+}
+@media (max-width: $breakpoint-xs-max)
+{
+  .suit-item-card {
+    grid-template-columns: 1fr 75px;
+  }
+  .weight-button, .edit-buttons {
+    grid-row: auto;
+  }
 }
 </style>

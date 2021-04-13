@@ -1,7 +1,10 @@
 <template>
-  <q-page class="flex" style="align-content: start">
-    <div class="q-pa-md q-gutter-y-md full-width page-width">
-      <div class=" column">
+  <q-page class="page-container">
+    <div class="column-container">
+      <div class="row q-mb-md flex justify-end" v-if="$q.screen.width <= 500">
+        <input-salinity :is-headline="false"></input-salinity>
+      </div>
+      <div class="column">
         <q-select
           filled
           label="Add new tank"
@@ -27,10 +30,13 @@
           </q-card-actions>
         </q-card>
       </q-dialog>
-      <q-markup-table>
+      <q-markup-table
+        v-if="false"
+        dense
+      >
           <thead>
           <tr>
-            <th colspan="3">
+            <th colspan="2">
             </th>
             <th colspan="2">
               Weight
@@ -44,7 +50,6 @@
           </tr>
           <tr>
             <th>Tank</th>
-            <th style="width: 30px">Gas</th>
             <th></th>
             <th>Empty</th>
             <th>Gas</th>
@@ -60,19 +65,15 @@
               @click="edit(index)">
 
             <td class="text-right" style="width: 40px">
-              {{ math.GetTankFullLabel(tank) }}
-
-            </td>
-            <td>
-              {{ math.GetGasLabel(tank.gasMixture) }}
+              {{ math.GetTankShortLabel(tank) }}<br />
+              {{ math.GetGasLabel(tank.gasMixture) }}, {{tank.workingPressure}} bar
             </td>
             <td></td>
-
             <td class="text-right" style="width: 40px">
               {{
                 math.CalculateTankWeightWithValve(tank)
                   .toFixed(1)
-              }} kg
+              }}&nbsp;kg
             </td>
             <td class="text-right" style="width: 40px">
               {{ math.CalculateTankGasWeight(tank).toFixed(1) }} kg
@@ -101,18 +102,100 @@
             </td>
           </tr>
           </tbody>
+
       </q-markup-table>
+      <q-card class="q-mt-lg">
+        <q-card-section
+          class="tankListItem"
+          v-for="(tank, index) in tanks" :key="index"
+                        style="border-bottom: solid 1px #ccc">
+          <div>
+            <table class="tankTable" @click="edit(index)">
+              <tr>
+                <td class="titleCell">
+                  <span>{{ math.GetTankShortLabel(tank) }}</span>, {{tank.workingPressure}}&nbsp;bar
+              </td>
+                <td>Weight</td>
+                <td>Buoyancy</td>
+                <td colspan="1" class="actions">
+                  <q-btn
+                    flat dense label="edit"
+                    color="grey-7"
+                    @click="edit(index)"/>
+                  <q-btn size="12px"
+                         color="grey-7"
+                         flat dense round icon="delete"
+                         @click.stop="deleteIdx(index)" />
+                </td>
+              </tr>
+
+              <tr>
+                <td>Full</td>
+                <td class="weight-cell"> {{ (math.CalculateTankWeightWithValve(tank) +
+                  math.CalculateTankGasWeight(tank)).toFixed(1) }} kg</td>
+                <td>
+                  <buoyancy
+                    :buoyancy="math.CalculateTankBuoyancy(tank,
+                  tank.workingPressure,
+                  $store.getters['buoyancy/currentWaterDensity'])"/>
+                </td>
+              </tr>
+              <tr><td>
+                Empty
+              </td>
+              <td class="weight-cell">
+                {{ math.CalculateTankWeightWithValve(tank)
+                .toFixed(1) }} kg
+              </td>
+                <td>
+                  <buoyancy
+                    :buoyancy="math.CalculateTankBuoyancy(tank,
+                  0,
+                  $store.getters['buoyancy/currentWaterDensity'])"/>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  {{ math.GetGasLabel(tank.gasMixture) }}
+                </td>
+                <td class="weight-cell">
+                  {{ (math.CalculateTankGasWeight(tank).toFixed(1)) }} kg
+                </td>
+              </tr>
+              <tr class="responsiveEdit">
+                <td></td>
+                <td></td>
+                <td colspan="1" class="actions">
+                  <q-btn
+                    flat dense label="edit"
+                    color="grey-7"
+                    @click="edit(index)"/>
+                  <q-btn size="12px"
+                         color="grey-7"
+                         flat dense round icon="delete"
+                         @click.stop="deleteIdx(index)" />
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="buttons">
+
+          </div>
+        </q-card-section>
+      </q-card>
     </div>
   </q-page>
 </template>
 <script>
 import Buoyancy from 'components/Buoyancy';
 import EditTank from 'pages/EditTank';
+import InputSalinity from 'components/InputSalinity';
 import * as math from '../math';
 
 export default {
   name: 'PageTank',
   components: {
+    InputSalinity,
     EditTank,
     Buoyancy,
   },
@@ -163,3 +246,47 @@ export default {
   },
 };
 </script>
+<style lang="scss">
+.tankListItem {
+  &:hover {
+    background-color: $grey-2;
+    cursor: pointer;
+  }
+}
+.titleRow {
+  display: flex;
+
+}
+.responsiveEdit {
+  display: none;
+}
+.tankTable {
+  width: 100%;
+  td {
+    padding: 2px;
+  }
+  .titleCell {
+    width: 50%;
+    font-weight: 500;
+  }
+  .weight-cell {
+    color: $grey-7;
+  }
+  max-width: 500px;
+  tr td:nth-child(2), tr td:nth-child(3), tr td:nth-child(4) {
+    text-align: right;
+  }
+  td.pad {
+    padding-right: 18px;
+  }
+}
+
+@media (max-width: 500px) {
+  .tankTable td:nth-child(4) {
+    display: none;
+  }
+  .responsiveEdit {
+    display: table-row;
+  }
+}
+</style>

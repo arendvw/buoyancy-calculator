@@ -27,8 +27,14 @@ export default {
   computed: {
     options() {
       return [
-        { label: 'Fresh water', value: 'fresh' },
-        { label: 'Salt water', value: 'salt' },
+        {
+          label: 'Fresh water',
+          value: 'fresh',
+        },
+        {
+          label: 'Salt water',
+          value: 'salt',
+        },
       ];
     },
   },

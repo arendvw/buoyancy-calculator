@@ -1,7 +1,7 @@
 <template>
-  <q-page class="flex page-person-responsive">
-    <div class="q-pa-md full-width page-width">
-      <div class="q-gutter-y-md column input-salinity-page" v-if="$q.screen.width <= 500">
+  <q-page class="page-container">
+    <div class="column-container">
+      <div class="row q-mb-md flex justify-end" v-if="$q.screen.width <= 500">
         <input-salinity :is-headline="false"></input-salinity>
       </div>
       <div class="q-gutter-y-md column help-margin">
@@ -162,17 +162,14 @@
                 Lung volume
               </template>
               <template v-slot:help>
-                Lung volume is estimated using [1].<br/>
-                The equations apply to:
+                Lung volume is estimated using <a href="https://erj.ersjournals.com/content/6/Suppl_16/5">Quanjer, P. H. et al. (1993) </a><br/>
+<br/>
+                The used equations are applicable to:
                 <ul>
                   <li>a height range of 1.55 – 1.95m in men</li>
                   <li>a height range of 1.45 – 1.80m in women</li>
                   <li>ages 18 – 70 yrs</li>
                 </ul>
-
-                [1] <a href="https://erj.ersjournals.com/content/6/Suppl_16/5">Quanjer, P. H. et al.
-                Lung volumes and forced ventilatory flows.
-                European Respiratory Journal 6, 5–40 (1993) </a>
               </template>
             </help-button></th>
             <th>Buoyancy <help-button>
@@ -369,6 +366,12 @@ export default {
       if (!this.fatPercentageManual) {
         value = Math.max(parseFloat(value), 0);
         this.$store.dispatch('buoyancy/setPersonProperty', { fatPercentage: value });
+      }
+    },
+    fatPercentageManual(value) {
+      if (!value) {
+        this.$store.dispatch('buoyancy/setPersonProperty',
+          { fatPercentage: this.fatPercentageFromBsi });
       }
     },
   },

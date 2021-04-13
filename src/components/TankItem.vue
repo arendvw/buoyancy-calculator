@@ -1,4 +1,5 @@
-<template>
+<template>  console.log({ o2, he, ar });
+
   <q-page class="flex flex-center">
     <q-markup-table>
       <thead>

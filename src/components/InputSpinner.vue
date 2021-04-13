@@ -37,17 +37,19 @@
       @click="addStep"
     ></q-btn>
     <template v-if="help">
-      <q-btn
-        class="help-button"
-        icon="help"
-        size="sm"
-        @click="showHelp = true"
-        round
-        unelevated
-        color="grey-2"
-        text-color="black"
-      >
-      </q-btn>
+      <div class="help-button-inline">
+        <q-btn
+          class=""
+          icon="help"
+          size="sm"
+          @click="showHelp = true"
+          round
+          unelevated
+          color="grey-2"
+          text-color="black"
+        >
+        </q-btn>
+      </div>
       <help-dialog v-model="showHelp">
         <template v-slot:title>
           <slot name="help-title"></slot>
@@ -182,7 +184,16 @@ export default {
     input[type=number] {
       -moz-appearance:textfield; /* Firefox */
     }
-
+    .help-button-inline {
+      padding-left: 10px;
+      display: flex;
+      align-content: center;
+      justify-content: center;
+      flex-direction: column;
+      .btn {
+        flex-grow: 0;
+      }
+    }
     .help-button {
       position: absolute;
       right: -50px;

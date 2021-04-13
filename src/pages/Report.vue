@@ -1,24 +1,25 @@
 <template>
-  <q-page class="flex">
-    <div class="full-width page-width">
-      <div class="q-pa-md q-gutter-y-md column">
+  <q-page class="page-container">
+    <div class="column-container">
+      <div class="row q-mb-md flex justify-end" v-if="$q.screen.width <= 500">
+        <input-salinity :is-headline="false"></input-salinity>
+      </div>
+        <div>
 
         <q-markup-table
-          class="full-width"
+          wrap-cells
+          class="full-width report-table"
         >
           <thead>
           <tr>
             <th>Name</th>
-            <th style="width: 200px"></th>
-            <th v-if="$store.state.buoyancy.salinity === 'fresh'">Buoyancy (fresh water)</th>
-            <th v-if="$store.state.buoyancy.salinity === 'salt'">Buoyancy (fresh water)</th>
-            <th style="width: 40px;"></th>
+            <th>Buoyancy</th>
+            <th></th>
           </tr>
           </thead>
           <tbody>
           <tr :class="{ rowDisabled: !$store.state.buoyancy.enabled }">
             <td>Personal buoyancy</td>
-            <td></td>
             <td  class="text-right" v-if="$store.getters['buoyancy/isSalinityFresh']">
               <buoyancy
                 v-if="$store.state.buoyancy.enabled"
@@ -39,7 +40,6 @@
             :key="'suit'+index"
             :class="{ rowDisabled: !suitItem.enabled }">
             <td>{{ suitItem.label }}</td>
-            <td></td>
             <td class="text-right">
               <buoyancy
                 v-if="suitItem.enabled"
@@ -54,17 +54,31 @@
             :key="'tank'+index"
             :class="{ rowDisabled: !tank.enabled }"
           >
-            <td>{{ math.GetTankFullLabel(tank) }}, {{ math.GetGasLabel(tank.gasMixture) }}</td>
-            <td class="text-right">
-              <input-spinner
-                v-if="tank.enabled"
+            <td style="padding-top: 10px">
+              {{ math.GetTankFullLabel(tank) }}, {{ math.GetGasLabel(tank.gasMixture) }}
+              <div
+                v-if="tank.enabled && !isDense"
+                class="q-mt-md" style="display: flex; justify-content: end">
+                <input-spinner
+                  style="min-width: 150px; max-width: 150px"
+                  dense
+                  :value="tank.configuredPressure"
+                  :minimum="0"
+                  :step="10"
+                  @input="updateConfiguredPressure(index, $event)"
+                  suffix="bar" />
+              </div>
+              <div v-if="isDense && tank.enabled">
+              <q-toggle
+                v-if="isDense && tank.enabled"
+                indeterminate-value="null"
+                :value="getTankIsFull(tank)"
+                @input="updateConfiguredPressureFromBoolean(index, tank, $event)"
                 dense
-                :value="tank.configuredPressure"
-                :minimum="0"
-                :step="10"
-                @input="updateConfiguredPressure(index, $event)"
-                suffix="bar" />
+                :label="getTankPressureLabel(tank)" />
+              </div>
             </td>
+
             <td class="text-right"><buoyancy
               v-if="tank.enabled"
               :buoyancy="calculateTankBuoyancy(tank)" /></td>
@@ -78,7 +92,6 @@
             :key="'weight'+index"
               style="cursor: pointer">
             <td>{{ weightItem.name }} ({{ weightItem.material }})</td>
-            <td></td>
             <td class="text-right" v-if="$store.state.buoyancy.salinity === 'fresh'">
               <buoyancy
                 v-if="weightItem.enabled"
@@ -98,7 +111,6 @@
           </tr>
           <tr style="border-top: 2px solid black">
             <td></td>
-            <td></td>
             <td class="text-right"><strong><buoyancy :buoyancy="total" /></strong></td>
           </tr>
           </tbody>
@@ -106,14 +118,28 @@
 
           </tfoot>
         </q-markup-table>
-        <input-spinner
-          v-if="hasNeoprene"
-          v-model="depth"
-          label="depth (for neoprene buoyancy)"
-          :minimum="0"
-          :step="3"
-          class="max-width-500"
-          suffix="m" />
+              <q-btn-toggle
+                v-if="$store.state.buoyancy.tanks.some(tank => tank.enabled === true)"
+                class="q-mt-lg"
+                size="sm"
+                :value="allTanksFull"
+                toggle-color="primary"
+                :options="[
+                  {label: 'Full tanks', value: true},
+                  {label: 'Empty tanks', value: false},
+                ]"
+                @input="updateAllConfiguredPressureFromBoolean($event)"
+              />
+              <input-spinner
+                dense
+                style="max-width: 350px"
+                v-if="hasNeoprene"
+                v-model="depth"
+                label="depth (for neoprene buoyancy)"
+                :minimum="0"
+                :step="3"
+                class="max-width-500 q-mt-lg"
+                suffix="m" />
       </div>
     </div>
   </q-page>
@@ -122,17 +148,22 @@
 <script>
 import Buoyancy from 'components/Buoyancy';
 import InputSpinner from 'components/InputSpinner';
+import InputSalinity from 'components/InputSalinity';
 import * as math from '../math';
 
 export default {
   name: 'PageReport',
   data() {
     return {
+      allTanksFull: true,
       depth: 0,
     };
   },
-  components: { InputSpinner, Buoyancy },
+  components: { InputSalinity, InputSpinner, Buoyancy },
   computed: {
+    isDense() {
+      return this.$q.screen.lt.sm;
+    },
     hasNeoprene() {
       return this.$store.state.buoyancy.wetsuitPieces.some((item) => item.hasNeoprene);
     },
@@ -179,6 +210,24 @@ export default {
     },
   },
   methods: {
+    getTankPressureLabel(tank) {
+      if (this.getTankIsFull(tank) === true) {
+        return `${tank.configuredPressure} bar (full)`;
+      }
+      if (this.getTankIsFull(tank) === true) {
+        return '0 bar (empty)';
+      }
+      return `${tank.configuredPressure} bar`;
+    },
+    getTankIsFull(tank) {
+      if (tank.configuredPressure === 0) {
+        return false;
+      }
+      if (tank.configuredPressure === tank.workingPressure) {
+        return true;
+      }
+      return null;
+    },
     calculateSuitBuoyancy(suit) {
       const { mass, volume } = math.CalculateSuit(suit, 1 + (this.depth / 10));
       return math.CalculateUnderwaterWeight(mass, volume, this.$store.getters['buoyancy/currentWaterDensity']);
@@ -194,10 +243,34 @@ export default {
       });
     },
     updateConfiguredPressure(index, value) {
+      this.allTanksFull = null;
       this.$store.dispatch('buoyancy/updateTank', {
         index,
         configuredPressure: parseFloat(value),
       });
+    },
+    updateConfiguredPressureFromBoolean(index, tank, value) {
+      let newPressure = tank.workingPressure;
+      if (!value) {
+        newPressure = 0;
+      }
+      this.$store.dispatch('buoyancy/updateTank', {
+        index,
+        configuredPressure: newPressure,
+      });
+    },
+    updateAllConfiguredPressureFromBoolean(value) {
+      this.$store.state.buoyancy.tanks.forEach((tank, index) => {
+        let newPressure = tank.workingPressure;
+        if (!value) {
+          newPressure = 0;
+        }
+        this.$store.dispatch('buoyancy/updateTank', {
+          index,
+          configuredPressure: newPressure,
+        });
+      });
+      this.allTanksFull = value;
     },
     enableSuitItem(index, value) {
       this.$store.dispatch('buoyancy/updateWetsuitPiece', {
@@ -225,5 +298,13 @@ export default {
 tr.rowDisabled {
   //background-color: $grey-3;
   color: $grey-8;
+}
+
+.report-table {
+  tr td:first-child {
+    max-width: 400px;
+    white-space: normal;
+    overflow: hidden;
+  }
 }
 </style>

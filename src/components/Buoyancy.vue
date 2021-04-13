@@ -1,6 +1,6 @@
 <template>
   <span class="buoyancy">
-    {{ buoyancy.toFixed(1) }} kg
+    {{ buoyancy.toFixed(1) }}&nbsp;kg
     <span class="icon">
       <q-icon name="expand_less" class="positive" v-if="buoyancy > 0.1"></q-icon>
       <q-icon name="drag_handle" class="neutral" v-if="buoyancy > -0.1 && buoyancy < 0.1"></q-icon>
@@ -21,7 +21,7 @@ export default {
 </script>
 <style lang="scss">
   .buoyancy .positive {
-    color: $green-4
+    color: $green-4;
   }
   .buoyancy .negative {
     color: $red-4
@@ -29,5 +29,10 @@ export default {
 
   .buoyancy .neutral {
     color: $grey-4
+  }
+
+  .buoyancy {
+    padding-top: 4px;
+    white-space: nowrap;
   }
 </style>

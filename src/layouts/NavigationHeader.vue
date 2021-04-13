@@ -11,7 +11,7 @@
       />
 
       <q-toolbar-title>
-        <strong>Buoyancy</strong> Calculator
+        <strong>Buoyancy</strong> Assistant
       </q-toolbar-title>
       <div v-if="$q.screen.width > 500">
         <input-salinity :is-headline="true"/>
@@ -28,6 +28,7 @@ export default {
 };
 </script>
 <style lang="scss">
-@media (max-width: $breakpoint-xs-max) {
+.q-header {
+  max-width: 1000px;
 }
 </style>
