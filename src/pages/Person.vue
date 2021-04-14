@@ -12,7 +12,16 @@
           :options="[{ label: 'Female', value: 'female' }, { label: 'Male', value: 'male' }]"
           map-options
           :dense="isDense"
-        >
+        ></q-select>
+          <q-select
+            filled
+            label="Units"
+            v-model="isMetric"
+            :options="[{ label: 'Metric', value: true },
+             { label: 'Imperial', value: false }]"
+            map-options
+            :dense="isDense"
+          >
         </q-select>
         <input-spinner
           v-model="age"
@@ -35,6 +44,7 @@
           </template>
         </input-spinner>
         <input-spinner
+          v-if="$store.state.buoyancy.isMetric"
           v-model="height"
           label="Your height (cm)"
           suffix="cm"
@@ -55,12 +65,60 @@
             </ul>
           </template>
         </input-spinner>
+        <input-height-feet-inches
+          v-if="!$store.state.buoyancy.isMetric"
+          label="Your height"
+          v-model="height"
+          :minimum="120"
+          :maximum="250"
+          converter="height"
+          :step="30.48 / 12.0"
+          help
+          :dense="isDense"
+        >
+          <template v-slot:help-title>
+            Height
+          </template>
+          <template v-slot:help>
+            Your height is used to estimate your
+            <ul>
+              <li>lung capacity</li>
+              <li>volume</li>
+              <li>surface area</li>
+            </ul>
+          </template>
+        </input-height-feet-inches>
+
         <input-spinner
+          v-if="$store.state.buoyancy.isMetric"
           v-model="weight"
           label="Your weight (kg)"
           suffix="kg"
           help
           :dense="isDense"
+        >
+          <template v-slot:help-title>
+            Weight
+          </template>
+          <template v-slot:help>
+            Your weight is used to estimate your
+            <ul>
+              <li>volume</li>
+              <li>surface area</li>
+              <li>density</li>
+              <li>apparent weight</li>
+            </ul>
+          </template>
+        </input-spinner>
+        <input-spinner
+          v-if="!$store.state.buoyancy.isMetric"
+          v-model="weight"
+          label="Your weight (lbs)"
+          suffix="lbs"
+          help
+          :dense="isDense"
+          converter="weight"
+          :step="1/$units.poundsToKg"
         >
           <template v-slot:help-title>
             Weight
@@ -151,13 +209,12 @@
             </template>
           </template>
         </input-spinner>
-
       </div>
       <div class="q-mt-lg">
         <q-markup-table :dense="$q.screen.lt.sm">
           <thead>
           <tr>
-            <th colspan="2" class="text-right">Lung volume <help-button>
+            <th colspan="2" class="text-right">Lung volume<help-button>
               <template v-slot:help-title>
                 Lung volume
               </template>
@@ -234,18 +291,19 @@
             <p>
             <template v-if="$store.state.buoyancy.salinity === 'fresh'">
               Your personal buoyancy is
-              <strong>{{ (calculateBodyWeight(lungCapacityNormallyInhaled,
-              math.DensitySaltwater) -
-            calculateBodyWeight(lungCapacityNormallyInhaled,
-              math.DensityFreshWater)).toFixed(1) }} kg more</strong> in salt water.
+              <strong>
+                <weight :weight="
+                (calculateBodyWeight(lungCapacityNormallyInhaled, math.DensitySaltwater) -
+                 calculateBodyWeight(lungCapacityNormallyInhaled, math.DensityFreshWater))">
+                </weight> more</strong> in salt water.
             </template>
             <template v-if="$store.state.buoyancy.salinity === 'salt'">
               Your personal buoyancy is
               <strong>
-              {{ (calculateBodyWeight(lungCapacityNormallyInhaled,
-              math.DensitySaltwater) -
-            calculateBodyWeight(lungCapacityNormallyInhaled,
-              math.DensityFreshWater)).toFixed(1) }} kg less</strong> in fresh water.
+                <weight :weight="
+                (calculateBodyWeight(lungCapacityNormallyInhaled, math.DensitySaltwater) -
+                 calculateBodyWeight(lungCapacityNormallyInhaled, math.DensityFreshWater))">
+                </weight> less</strong> in fresh water.
             </template>
             </p>
           </q-card-section>
@@ -261,12 +319,19 @@ import Buoyancy from 'components/Buoyancy';
 import InputSpinner from 'components/InputSpinner';
 import HelpButton from 'components/Help/HelpButton';
 import InputSalinity from 'components/InputSalinity';
+import InputHeightFeetInches from 'components/InputHeightFeetInches';
+import Weight from 'components/Weight';
 import * as math from '../math';
 
 export default {
   name: 'PagePerson',
   components: {
-    InputSalinity, HelpButton, InputSpinner, Buoyancy,
+    Weight,
+    InputHeightFeetInches,
+    InputSalinity,
+    HelpButton,
+    InputSpinner,
+    Buoyancy,
   },
   data() {
     return {
@@ -326,6 +391,14 @@ export default {
       },
       set(value) {
         return this.$store.dispatch('buoyancy/setPersonProperty', { gender: value.value });
+      },
+    },
+    isMetric: {
+      get() {
+        return this.$store.state.buoyancy.isMetric;
+      },
+      set(value) {
+        return this.$store.dispatch('buoyancy/setPersonProperty', { isMetric: value.value });
       },
     },
     lungCapacity() {

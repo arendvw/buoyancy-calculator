@@ -14,6 +14,14 @@ export const Materials = {
   },
 };
 
+export const DepthsMetric = [
+  0, 6, 12, 18, 24, 30,
+];
+
+export const DepthsImperial = [
+  6.096, 12.192, 18.288, 24.384, 30.48, 36.576,
+];
+
 export const WeightItemMaterials = {
   steel: {
     name: 'Steel',
@@ -52,6 +60,9 @@ export const ManifoldWeight = 2.5;
 export const DensityFreshWater = 1;
 export const DensitySaltwater = 1.03;
 export const RubberDensity = 1000;
+const cuftToLiter = 28.3168;
+const psiToBar = 14.5038;
+const barToAtmosphere = 1.01325;
 
 /** Porosity of neoprene.
  The porosities of the 5 mm and 12 mm thick foam
@@ -121,7 +132,7 @@ export const TankConfigurations = [
     volume: 3,
     material: 'aluminum',
     weight: 3.6,
-    workingPressure: 207,
+    workingPressure: 206.8427,
   },
   {
     volume: 3,
@@ -139,7 +150,7 @@ export const TankConfigurations = [
     volume: 5.7,
     material: 'aluminum',
     weight: 7,
-    workingPressure: 207,
+    workingPressure: 206.8427,
   },
   {
     volume: 7,
@@ -157,7 +168,7 @@ export const TankConfigurations = [
     volume: 7,
     material: 'aluminum',
     weight: 8.7,
-    workingPressure: 207,
+    workingPressure: 206.8427,
   },
   {
     volume: 8.5,
@@ -169,7 +180,7 @@ export const TankConfigurations = [
     volume: 10,
     material: 'aluminum',
     weight: 12.2,
-    workingPressure: 207,
+    workingPressure: 206.8427,
   },
   {
     volume: 10,
@@ -187,7 +198,7 @@ export const TankConfigurations = [
     volume: 11.1,
     material: 'aluminum',
     weight: 14.3,
-    workingPressure: 207,
+    workingPressure: 206.8427,
   },
   {
     volume: 12,
@@ -326,7 +337,7 @@ export function CalculateGasWeight({ o2, he, ar }, temperatureCelsius, volume, p
   density += densityO2 * o2 * 0.01;
   density += densityHe * he * 0.01;
   density += densityAr * ar * 0.01;
-  return density * pressure * volume;
+  return density * pressure * volume * (1 / barToAtmosphere);
 }
 
 export function CalculateTankGasWeight({
@@ -335,6 +346,11 @@ export function CalculateTankGasWeight({
   const gas = GasMixtures[gasMixture];
   volume = isDouble ? volume * 2 : volume;
   return CalculateGasWeight(gas, 15, volume, workingPressure) / 1000;
+}
+
+export function CalculateTankFreeLiters({ isDouble, volume, workingPressure }) {
+  const vol = isDouble ? volume * 2 : volume;
+  return vol * workingPressure * (1 / barToAtmosphere);
 }
 
 export function CalculateTankWeightWithValve({ includeValve, isDouble, weight }) {
@@ -391,8 +407,19 @@ export function CalculateTankBuoyancy(
 }
 
 export function GetTankLabel({ volume, material, workingPressure }) {
-  return `${volume} ℓ ${material} (${workingPressure} bar)`;
+  return `${volume} ℓ ${material}, ${Math.round(workingPressure)} bar`;
 }
+
+export function GetTankImperialLabel({
+  volume, material, workingPressure,
+}) {
+  const materialName = Materials[material].name;
+  const freeCuft = CalculateTankFreeLiters(
+    { isDouble: false, volume, workingPressure },
+  ) / cuftToLiter;
+  return `${Math.round(freeCuft)} cuft ${materialName.toLowerCase()}, ${Math.round(workingPressure * psiToBar)} psi`;
+}
+
 export function GetWeightItemLabel({ name, material }) {
   if (material in WeightItemMaterials) {
     return `${name} (${WeightItemMaterials[material].name})`;
@@ -405,7 +432,7 @@ export function GetTankFullLabel({
 }) {
   const double = isDouble ? 'Double' : '';
   const materialName = Materials[material].name;
-  return `${double} ${volume.toFixed(1)} ℓ ${materialName.toLowerCase()} (${workingPressure} bar)`;
+  return `${double} ${volume.toFixed(1)} ℓ ${materialName.toLowerCase()} (${Math.round(workingPressure)} bar)`;
 }
 
 export function GetTankShortLabel({
@@ -414,6 +441,27 @@ export function GetTankShortLabel({
   const double = isDouble ? 'Double' : '';
   const materialName = Materials[material].name;
   return `${double} ${volume.toFixed(1)} ℓ ${materialName.toLowerCase()}`;
+}
+export function GetTankFullImperialLabel({
+  volume, isDouble, material, workingPressure,
+}) {
+  const double = isDouble ? 'Double' : '';
+  const materialName = Materials[material].name;
+  const freeCuft = CalculateTankFreeLiters(
+    { isDouble: false, volume, workingPressure },
+  ) / cuftToLiter;
+  return `${double} ${Math.round(freeCuft)} cuft ${materialName.toLowerCase()} (${Math.round(workingPressure * psiToBar)} psi)`;
+}
+
+export function GetTankShortImperialLabel({
+  volume, isDouble, material, workingPressure,
+}) {
+  const double = isDouble ? 'Double' : '';
+  const materialName = Materials[material].name;
+  const freeCuft = CalculateTankFreeLiters(
+    { isDouble: false, volume, workingPressure },
+  ) / cuftToLiter;
+  return `${double} ${Math.round(freeCuft)} cuft ${materialName.toLowerCase()}`;
 }
 
 /**
@@ -432,8 +480,7 @@ export function CalculateWeightFromFatPercentage(weight, percentage, lungVolume,
   const density = 4.95 / (percentage + 4.50);
   const volume = (weight / density) + lungVolume;
   const densityWithLungs = weight / volume;
-  const result = (waterDensity - densityWithLungs) * volume;
-  return result;
+  return (waterDensity - densityWithLungs) * volume;
 }
 
 /**

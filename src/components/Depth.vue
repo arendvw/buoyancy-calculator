@@ -1,9 +1,9 @@
 <template>
-  <span class="pressure" v-if="isMetric">
-    {{ Math.round(pressure) }}&nbsp;bar
+  <span class="weight" v-if="isMetric">
+    {{ Math.round(depth) }}&nbsp;m
   </span>
-  <span class="pressure" v-else>
-    {{ Math.round(valuePsi)  }}&nbsp;psi
+  <span class="weight" v-else>
+    {{ Math.round(valueFeet) }}&nbsp;ft
   </span>
 </template>
 
@@ -12,7 +12,7 @@ import * as units from '../units';
 
 export default {
   props: {
-    pressure: {
+    depth: {
       type: Number,
       required: true,
     },
@@ -21,8 +21,8 @@ export default {
     isMetric() {
       return this.$store.state.buoyancy.isMetric;
     },
-    valuePsi() {
-      return this.pressure * units.psiToBar;
+    valueFeet() {
+      return this.depth / units.feetToMeter;
     },
   },
 };

@@ -1,6 +1,6 @@
 <template>
   <span class="buoyancy">
-    {{ buoyancy.toFixed(1) }}&nbsp;kg
+    <weight :weight="buoyancy"></weight>
     <span class="icon">
       <q-icon name="expand_less" class="positive" v-if="buoyancy > 0.1"></q-icon>
       <q-icon name="drag_handle" class="neutral" v-if="buoyancy > -0.1 && buoyancy < 0.1"></q-icon>
@@ -10,7 +10,10 @@
 </template>
 
 <script>
+import Weight from 'components/Weight';
+
 export default {
+  components: { Weight },
   props: {
     buoyancy: {
       type: Number,

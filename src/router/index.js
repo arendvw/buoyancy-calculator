@@ -1,9 +1,14 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
+import * as math from 'src/math';
+import * as units from 'src/units';
 import routes from './routes';
 
 Vue.use(VueRouter);
+
+Vue.prototype.$math = math;
+Vue.prototype.$units = units;
 
 /*
  * If not building with SSR mode, you can

@@ -17,8 +17,12 @@
         <q-card>
           <q-card-section>
             <div class="text-h6" v-if="currentTank!=null">
-              {{ currentTank.volume.toFixed(1) }} ℓ {{ currentTank.material }}
-              {{ currentTank.workingPressure }} bar
+              <template v-if="$store.state.buoyancy.isMetric">
+                {{ math.GetTankFullLabel(currentTank)}}
+              </template>
+              <template v-else>
+                {{ math.GetTankFullImperialLabel(currentTank)}}
+              </template>
             </div>
           </q-card-section>
           <EditTank
@@ -112,9 +116,13 @@
           <div>
             <table class="tankTable" @click="edit(index)">
               <tr>
-                <td class="titleCell">
-                  <span>{{ math.GetTankShortLabel(tank) }}</span>, {{tank.workingPressure}}&nbsp;bar
-              </td>
+                <td class="titleCell" v-if="$store.state.buoyancy.isMetric">
+                  <span>{{ math.GetTankShortLabel(tank) }}</span>, {{ Math.round(tank.workingPressure) }}&nbsp;bar
+                </td>
+                <td class="titleCell" v-else>
+                  <span>{{ math.GetTankShortImperialLabel(tank) }}</span>,
+                  <pressure :pressure="tank.workingPressure"></pressure>
+                </td>
                 <td>Weight</td>
                 <td>Buoyancy</td>
                 <td colspan="1" class="actions">
@@ -131,8 +139,10 @@
 
               <tr>
                 <td>Full</td>
-                <td class="weight-cell"> {{ (math.CalculateTankWeightWithValve(tank) +
-                  math.CalculateTankGasWeight(tank)).toFixed(1) }} kg</td>
+                <td class="weight-cell">
+                  <weight :weight="math.CalculateTankWeightWithValve(tank) +
+                  math.CalculateTankGasWeight(tank)"></weight>
+                </td>
                 <td>
                   <buoyancy
                     :buoyancy="math.CalculateTankBuoyancy(tank,
@@ -144,8 +154,7 @@
                 Empty
               </td>
               <td class="weight-cell">
-                {{ math.CalculateTankWeightWithValve(tank)
-                .toFixed(1) }} kg
+                <weight :weight="math.CalculateTankWeightWithValve(tank)"></weight>
               </td>
                 <td>
                   <buoyancy
@@ -159,7 +168,7 @@
                   {{ math.GetGasLabel(tank.gasMixture) }}
                 </td>
                 <td class="weight-cell">
-                  {{ (math.CalculateTankGasWeight(tank).toFixed(1)) }} kg
+                  <weight :weight="math.CalculateTankGasWeight(tank)"></weight>
                 </td>
               </tr>
               <tr class="responsiveEdit">
@@ -178,9 +187,6 @@
               </tr>
             </table>
           </div>
-          <div class="buttons">
-
-          </div>
         </q-card-section>
       </q-card>
     </div>
@@ -190,11 +196,15 @@
 import Buoyancy from 'components/Buoyancy';
 import EditTank from 'pages/EditTank';
 import InputSalinity from 'components/InputSalinity';
+import Weight from 'components/Weight';
+import Pressure from 'components/Pressure';
 import * as math from '../math';
 
 export default {
   name: 'PageTank',
   components: {
+    Pressure,
+    Weight,
     InputSalinity,
     EditTank,
     Buoyancy,
@@ -237,11 +247,21 @@ export default {
       return this.$store.state.buoyancy.tanks;
     },
     optionsWithLabel() {
-      return math.TankConfigurations.map((option, idx) => {
-        option.label = math.GetTankLabel(option);
+      if (this.$store.state.buoyancy.isMetric) {
+        return math.TankConfigurations.map((option, idx) => {
+          option.label = math.GetTankLabel(option);
+          option.value = idx;
+          return option;
+        });
+      }
+      const result = math.TankConfigurations.map((option, idx) => {
+        option.label = math.GetTankImperialLabel(option);
         option.value = idx;
+        option.freeLiters = math.CalculateTankFreeLiters(option);
         return option;
       });
+      result.sort((a, b) => a.freeLiters - b.freeLiters);
+      return result;
     },
   },
 };

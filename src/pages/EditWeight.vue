@@ -16,9 +16,10 @@
         :value="weightItem.weight"
         @input="setFromWeight(index, $event)"
         :decimals="1"
-        :step="0.5"
-        suffix="kg"
+        :step="weightStep"
+        :suffix="weightUnit"
         :minimum="0"
+        :converter="weightConverter"
       ></input-spinner>
     </div>
     <div class="input-row q-mt-lg">
@@ -50,22 +51,6 @@
       >
       </input-select>
     </div>
-    <q-tabs
-      v-if="false"
-      :value="weightItem.mode"
-      @input="setMode(index, $event)"
-      dense
-      class="text-grey q-mt-md"
-      active-color="primary"
-      indicator-color="primary"
-      align="justify"
-      narrow-indicator
-    >
-      <q-tab name="material" label="Material" />
-      <q-tab name="density" label="Density" />
-      <q-tab name="volume" label="Volume" />
-      <q-tab name="buoyancy" label="Buoyancy" />
-    </q-tabs>
     <div class="input-row" v-if="weightItem.mode === 'volume'">
       <input-spinner
         label="Volume"
@@ -76,6 +61,7 @@
         suffix="ℓ"
         :minimum="0.01"
         :step="0.1"
+        :hint="volumeHint(weightItem.volume)"
       />
     </div>
     <div class="input-row" v-if="weightItem.mode === 'material'">
@@ -100,6 +86,7 @@
         suffix="kg/ℓ"
         :minimum="0.1"
         :maximum="25"
+        :hint="densityHint(weightItem.density)"
       />
     </div>
     <div class="input-row" v-if="weightItem.mode === 'buoyancy'
@@ -111,11 +98,14 @@
         @input="setFromBuoyancy(index, $event, true)"
         :step="0.1"
         :decimals="1"
-        suffix="kg"
+        :suffix="weightUnit"
+        :converter="weightConverter"
         :minimum="-weightItem.weight+0.1"
       />
     </div>
-    <div class="input-row" v-if="$store.state.buoyancy.salinity === 'salt'">
+    <div class="input-row" v-if="
+    weightItem.mode === 'buoyancy' &&
+    $store.state.buoyancy.salinity === 'salt'">
       <input-spinner
         label="Buoyancy (salt water)"
         :dense="dense"
@@ -123,16 +113,13 @@
         @input="setFromBuoyancy(index, $event, false)"
         :step="0.1"
         :decimals="1"
-        suffix="kg"
+        :suffix="weightUnit"
+        :converter="weightConverter"
         :minimum="-weightItem.weight+0.1"
       />
     </div>
     <q-markup-table flat class="q-mt-sm" wrap-cells>
       <tbody>
-      <tr v-if="weightItem.mode === 'buoyancy'">
-        <td colspan="2">
-          Positive buoyancy floats, negative buoyancy sinks
-        </td>
       <tr v-if="weightItem.mode !== 'buoyancy' && $store.state.buoyancy.salinity === 'salt'">
         <td>Buoyancy (salt water)</td>
         <td><buoyancy :buoyancy="weightItem.buoyancySaltWater" /></td></tr>
@@ -148,6 +135,7 @@ import InputSpinner from 'components/InputSpinner';
 import * as math from 'src/math';
 import Buoyancy from 'components/Buoyancy';
 import InputSelect from 'components/InputSelect';
+import * as units from 'src/units';
 
 export default {
   components: { InputSelect, Buoyancy, InputSpinner },
@@ -335,8 +323,29 @@ export default {
         mode: value,
       });
     },
+    volumeHint(value) {
+      if (this.$store.state.buoyancy.isMetric) {
+        return undefined;
+      }
+      return `≈ ${Math.round(value / units.cuinToLiter)} cu inch, ≈ ${(value / units.lbsToLiter).toFixed(1)} lbs`;
+    },
+    densityHint(value) {
+      if (this.$store.state.buoyancy.isMetric) {
+        return undefined;
+      }
+      return `≈ ${Math.round(value / units.kglToLbsCuft)} lbs / cu ft`;
+    },
   },
   computed: {
+    weightStep() {
+      return this.$store.state.buoyancy.isMetric ? 0.5 : 1 / this.$units.poundsToKg;
+    },
+    weightUnit() {
+      return this.$store.state.buoyancy.isMetric ? 'kg' : 'lbs';
+    },
+    weightConverter() {
+      return this.$store.state.buoyancy.isMetric ? undefined : 'weight';
+    },
     weightItem() {
       return this.$store.state.buoyancy.weightItems[this.index];
     },

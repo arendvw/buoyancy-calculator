@@ -40,7 +40,7 @@
         <thead>
         <tr>
           <th>
-            Depth (m)
+            Depth
           </th>
           <th>
             Buoyancy
@@ -50,7 +50,7 @@
         <tbody>
         <tr v-for="(depth, idx) in depths" :key="idx">
           <td class="text-right">
-            {{ depth }} m
+            <depth :depth="depth"></depth>
           </td>
           <td>
             <buoyancy :buoyancy="computeAtPressure(1+depth/10,
@@ -69,6 +69,7 @@ import Buoyancy from 'components/Buoyancy';
 import SuitItem from 'pages/SuitItem';
 import SuitEdit from 'pages/SuitEdit';
 import InputSalinity from 'components/InputSalinity';
+import Depth from 'components/Depth';
 import * as math from '../math';
 
 /**
@@ -105,6 +106,7 @@ import * as math from '../math';
 export default {
   name: 'PageWetsuit',
   components: {
+    Depth,
     InputSalinity,
     SuitEdit,
     SuitItem,
@@ -115,9 +117,6 @@ export default {
       showEdit: false,
       currentIndex: -1,
       optionToAdd: null,
-      depths: [
-        0, 6, 12, 18, 24, 30,
-      ],
       options: [
         {
           label: 'Add new piece..',
@@ -184,6 +183,11 @@ export default {
     };
   },
   computed: {
+    depths() {
+      return this.$store.state.buoyancy.isMetric
+        ? math.DepthsMetric
+        : math.DepthsImperial;
+    },
     ruleOfNinesArea() {
       return math.RuleOfNines(this.bsaMosteller);
     },

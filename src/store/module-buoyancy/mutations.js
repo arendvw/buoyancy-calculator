@@ -8,6 +8,7 @@
  * @param age
  * @param gender
  * @param enabled
+ * @param units
  * @constructor
  */
 export function SET_PERSON_PROPERTY(state, {
@@ -18,6 +19,7 @@ export function SET_PERSON_PROPERTY(state, {
   age,
   gender,
   enabled,
+  isMetric,
 }) {
   if (weight !== undefined) {
     state.weight = weight;
@@ -39,6 +41,9 @@ export function SET_PERSON_PROPERTY(state, {
   }
   if (enabled !== undefined) {
     state.enabled = enabled;
+  }
+  if (isMetric !== undefined) {
+    state.isMetric = isMetric;
   }
 }
 

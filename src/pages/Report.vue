@@ -7,6 +7,7 @@
         <div>
 
         <q-markup-table
+          :dense="isDense"
           wrap-cells
           class="full-width report-table"
         >
@@ -30,7 +31,7 @@
                 v-if="$store.state.buoyancy.enabled"
                 :buoyancy="$store.getters['buoyancy/personalBuoyancy'](false)"/>
             </td>
-            <td class="text-center"><q-toggle
+            <td class="text-right"><q-toggle
               :value="$store.state.buoyancy.enabled"
               @input="enablePerson"
             /></td>
@@ -44,7 +45,7 @@
               <buoyancy
                 v-if="suitItem.enabled"
                 :buoyancy="calculateSuitBuoyancy(suitItem)" /></td>
-            <td class="text-center" style="width: 40px"><q-toggle
+            <td class="text-right"><q-toggle
               :value="suitItem.enabled"
               @input="enableSuitItem(index, $event)"
             /></td>
@@ -55,20 +56,27 @@
             :class="{ rowDisabled: !tank.enabled }"
           >
             <td style="padding-top: 10px">
-              {{ math.GetTankFullLabel(tank) }}, {{ math.GetGasLabel(tank.gasMixture) }}
+              <template v-if="$store.state.buoyancy.isMetric">
+                {{ math.GetTankFullLabel(tank) }}, {{ math.GetGasLabel(tank.gasMixture) }}
+              </template>
+              <template v-else>
+                {{ math.GetTankFullImperialLabel(tank) }}, {{ math.GetGasLabel(tank.gasMixture) }}
+              </template>
               <div
-                v-if="tank.enabled && !isDense"
+                v-if="tank.enabled && !isVeryDense"
                 class="q-mt-md" style="display: flex; justify-content: end">
                 <input-spinner
-                  style="min-width: 150px; max-width: 150px"
+                  style="min-width: 130px; max-width: 150px"
                   dense
                   :value="tank.configuredPressure"
                   :minimum="0"
-                  :step="10"
                   @input="updateConfiguredPressure(index, $event)"
-                  suffix="bar" />
+                  :suffix="pressureUnit"
+                  :converter="pressureConverter"
+                  :step="pressureStep"
+                />
               </div>
-              <div v-if="isDense && tank.enabled">
+              <div v-if="isDense && tank.enabled && false">
               <q-toggle
                 v-if="isDense && tank.enabled"
                 indeterminate-value="null"
@@ -82,7 +90,7 @@
             <td class="text-right"><buoyancy
               v-if="tank.enabled"
               :buoyancy="calculateTankBuoyancy(tank)" /></td>
-            <td class="text-center"><q-toggle
+            <td class="text-right"><q-toggle
               :value="tank.enabled"
               @input="enableTank(index, $event)"
             /></td>          </tr>
@@ -91,7 +99,24 @@
             :class="{ rowDisabled: !weightItem.enabled }"
             :key="'weight'+index"
               style="cursor: pointer">
-            <td>{{ weightItem.name }} ({{ weightItem.material }})</td>
+            <td>{{ weightItem.name }} ({{ weightItem.material }})
+              <div
+                v-if="weightItem.enabled && !isVeryDense"
+                class="q-mt-md" style="display: flex; justify-content: end">
+              <input-spinner
+                style="min-width: 130px; max-width: 150px"
+                v-if="weightItem.material === 'lead'"
+                :dense="true"
+                :value="weightItem.weight"
+                @input="setFromWeight(index, $event)"
+                :decimals="1"
+                :step="weightStep"
+                :suffix="weightUnit"
+                :minimum="0.01"
+                :converter="weightConverter"
+              ></input-spinner>
+              </div>
+            </td>
             <td class="text-right" v-if="$store.state.buoyancy.salinity === 'fresh'">
               <buoyancy
                 v-if="weightItem.enabled"
@@ -118,28 +143,28 @@
 
           </tfoot>
         </q-markup-table>
-              <q-btn-toggle
-                v-if="$store.state.buoyancy.tanks.some(tank => tank.enabled === true)"
-                class="q-mt-lg"
-                size="sm"
-                :value="allTanksFull"
-                toggle-color="primary"
-                :options="[
-                  {label: 'Full tanks', value: true},
-                  {label: 'Empty tanks', value: false},
-                ]"
-                @input="updateAllConfiguredPressureFromBoolean($event)"
-              />
-              <input-spinner
-                dense
-                style="max-width: 350px"
-                v-if="hasNeoprene"
-                v-model="depth"
-                label="depth (for neoprene buoyancy)"
-                :minimum="0"
-                :step="3"
-                class="max-width-500 q-mt-lg"
-                suffix="m" />
+        <q-btn-toggle
+          v-if="$store.state.buoyancy.tanks.some(tank => tank.enabled === true)"
+          class="q-mt-lg"
+          size="sm"
+          :value="allTanksFull"
+          toggle-color="grey-8"
+          :options="[
+            {label: 'Full tanks', value: true},
+            {label: 'Empty tanks', value: false},
+          ]"
+          @input="updateAllConfiguredPressureFromBoolean($event)"
+        />
+        <input-spinner
+          dense
+          style="max-width: 350px"
+          v-if="hasNeoprene"
+          v-model="depth"
+          label="depth (for neoprene buoyancy)"
+          :minimum="0"
+          :step="3"
+          class="max-width-500 q-mt-lg"
+          suffix="m" />
       </div>
     </div>
   </q-page>
@@ -161,8 +186,35 @@ export default {
   },
   components: { InputSalinity, InputSpinner, Buoyancy },
   computed: {
+    weightStep() {
+      return this.$store.state.buoyancy.isMetric ? 0.5 : 1 / this.$units.poundsToKg;
+    },
+    weightUnit() {
+      return this.$store.state.buoyancy.isMetric ? 'kg' : 'lbs';
+    },
+    weightConverter() {
+      return this.$store.state.buoyancy.isMetric ? undefined : 'weight';
+    },
+    weightItem() {
+      return this.$store.state.buoyancy.weightItems[this.index];
+    },
+    pressureUnit() {
+      if (this.isDense) {
+        return '';
+      }
+      return this.$store.state.buoyancy.isMetric ? 'bar' : 'psi';
+    },
+    pressureConverter() {
+      return this.$store.state.buoyancy.isMetric ? undefined : 'pressure';
+    },
+    pressureStep() {
+      return this.$store.state.buoyancy.isMetric ? 10 : 100 / this.$units.psiToBar;
+    },
     isDense() {
       return this.$q.screen.lt.sm;
+    },
+    isVeryDense() {
+      return this.$q.screen.width < 350;
     },
     hasNeoprene() {
       return this.$store.state.buoyancy.wetsuitPieces.some((item) => item.hasNeoprene);
@@ -210,14 +262,31 @@ export default {
     },
   },
   methods: {
+    setFromWeight(index, weight) {
+      const weightItem = this.$store.state.buoyancy.weightItems[index];
+      const obj = {
+        index,
+        weight,
+        density: weightItem.density,
+        volume: weight / weightItem.density,
+      };
+      obj.buoyancyFreshWater = math.CalculateUnderwaterWeight(
+        obj.weight,
+        obj.volume,
+        math.DensityFreshWater,
+      );
+      obj.buoyancySaltWater = math.CalculateUnderwaterWeight(
+        obj.weight,
+        obj.volume,
+        math.DensitySaltwater,
+      );
+      this.$store.dispatch('buoyancy/updateWeightItem', obj);
+    },
     getTankPressureLabel(tank) {
-      if (this.getTankIsFull(tank) === true) {
-        return `${tank.configuredPressure} bar (full)`;
+      if (this.$store.state.buoyancy.isMetric) {
+        return `${Math.round(tank.configuredPressure)} bar`;
       }
-      if (this.getTankIsFull(tank) === true) {
-        return '0 bar (empty)';
-      }
-      return `${tank.configuredPressure} bar`;
+      return `${Math.round(tank.configuredPressure * this.$units.psiToBar)} psi`;
     },
     getTankIsFull(tank) {
       if (tank.configuredPressure === 0) {
@@ -299,7 +368,6 @@ tr.rowDisabled {
   //background-color: $grey-3;
   color: $grey-8;
 }
-
 .report-table {
   tr td:first-child {
     max-width: 400px;

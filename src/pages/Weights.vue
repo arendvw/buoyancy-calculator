@@ -32,7 +32,7 @@
           <td style="white-space: normal; overflow: hidden; max-width: 150px;">
             {{ math.GetWeightItemLabel(weightItem) }}
           </td>
-          <td v-if="!isDense" class="text-right">{{ weightItem.weight.toFixed(1) }} kg</td>
+          <td v-if="!isDense" class="text-right"><weight :weight="weightItem.weight"></weight></td>
           <td v-if="showCalculations"
               class="text-right">{{ weightItem.volume.toFixed(1) }} &ell;</td>
           <td v-if="showCalculations"
@@ -82,6 +82,7 @@
 import Buoyancy from 'components/Buoyancy';
 import EditWeight from 'pages/EditWeight';
 import InputSalinity from 'components/InputSalinity';
+import Weight from 'components/Weight';
 import * as math from '../math';
 
 export default {
@@ -94,6 +95,7 @@ export default {
     };
   },
   components: {
+    Weight,
     InputSalinity,
     EditWeight,
     Buoyancy,

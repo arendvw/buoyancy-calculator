@@ -12,9 +12,23 @@
           map-options
       />
     </div>
-    <div class="input-row">
+    <div class="input-row" v-if="!$store.state.buoyancy.isMetric">
       <input-spinner
-          label="Volume"
+        label="Empty weight"
+        :dense="dense"
+        class="max-width-300"
+        :value="tank.weight"
+        @input="setWeight(index, $event)"
+        converter="weight"
+        :decimals="1"
+        :step="1/$units.poundsToKg"
+        suffix="lbs"
+        :minimum="0"
+      ></input-spinner>
+    </div>
+    <div class="input-row" v-if="$store.state.buoyancy.isMetric">
+      <input-spinner
+          label="Water capacity"
           :dense="dense"
           class="max-width-300"
           :value="tank.volume"
@@ -22,11 +36,39 @@
           :decimals="1"
           suffix="ℓ"
           :minimum="0"
+          :hint="waterCapacityHint(tank.volume)"
       />
     </div>
-    <div class="input-row">
+    <div class="input-row" v-if="!$store.state.buoyancy.isMetric">
       <input-spinner
-        label="Weight"
+        label="Working pressure"
+        :dense="dense"
+        class="max-width-300"
+        :value="tank.workingPressure"
+        @input="setWorkingPressureAndVolume(index, $event)"
+        :decimals="0"
+        :step="100/$units.psiToBar"
+        suffix="psi"
+        :minimum="0"
+        converter="pressure"
+      ></input-spinner>
+    </div>
+    <div class="input-row" v-if="!$store.state.buoyancy.isMetric">
+      <input-spinner
+        label="Air capacity"
+        :dense="dense"
+        class="max-width-300"
+        :value="airCapacityCuft"
+        @input="setVolumeFromAirCapacity(index, $event)"
+        :decimals="1"
+        suffix="cuft"
+        :minimum="0"
+      />
+    </div>
+
+    <div class="input-row" v-if="$store.state.buoyancy.isMetric">
+      <input-spinner
+        label="Empty weight"
         :dense="dense"
           class="max-width-300"
           :value="tank.weight"
@@ -37,7 +79,8 @@
           :minimum="0"
       ></input-spinner>
     </div>
-    <div class="input-row">
+
+    <div class="input-row" v-if="$store.state.buoyancy.isMetric">
       <input-spinner
           label="Working pressure"
           :dense="dense"
@@ -49,6 +92,19 @@
           suffix="bar"
           :minimum="0"
       ></input-spinner>
+    </div>
+    <div class="input-row" v-if="!$store.state.buoyancy.isMetric">
+      <input-spinner
+        label="Water capacity"
+        :dense="dense"
+        class="max-width-300"
+        :value="tank.volume"
+        @input="setVolume(index, $event)"
+        :decimals="1"
+        suffix="ℓ"
+        :minimum="0"
+        :hint="waterCapacityHint(tank.volume)"
+      />
     </div>
     <div class="input-row">
       <q-select
@@ -88,6 +144,7 @@
 <script>
 import InputSpinner from 'components/InputSpinner';
 import * as math from 'src/math';
+import * as units from 'src/units';
 
 export default {
   name: 'EditTank',
@@ -152,8 +209,41 @@ export default {
         includeValve: value,
       });
     },
+    setVolumeFromAirCapacity(idx, value) {
+      const capacityLitersAtSurface = parseFloat(value) * this.$units.cuftToLiter * this.$units.barToAtmosphere;
+      // if you update the air capacity: only change the water volume, keep the working pressure constant
+      const newVolume = (capacityLitersAtSurface / this.tank.workingPressure);
+      this.$store.dispatch('buoyancy/updateTank', {
+        index: idx,
+        volume: newVolume,
+      });
+    },
+    setWorkingPressureAndVolume(idx, value) {
+      // if you update the air capacity: only change the water volume, keep the working pressure and total volume constant
+      const newWorkingPressure = parseFloat(value);
+      const currentAirCapacityLiters = math.CalculateTankFreeLiters(this.tank);
+      const newWaterVolume = currentAirCapacityLiters / newWorkingPressure;
+
+      if (newWaterVolume < 0.01) {
+        return;
+      }
+      this.$store.dispatch('buoyancy/updateTank', {
+        index: idx,
+        workingPressure: newWorkingPressure,
+        volume: newWaterVolume,
+      });
+    },
+    waterCapacityHint(value) {
+      if (this.$store.state.buoyancy.isMetric) {
+        return undefined;
+      }
+      return `≈ ${Math.round(value / units.cuinToLiter)} cu inch, ≈ ${(value / units.lbsToLiter).toFixed(1)} lbs`;
+    },
   },
   computed: {
+    airCapacityCuft() {
+      return this.$math.CalculateTankFreeLiters(this.tank) / this.$units.cuftToLiter;
+    },
     tank() {
       return this.$store.state.buoyancy.tanks[this.index];
     },

@@ -12,6 +12,7 @@
         :maximum="40"
         :dense="$q.screen.lt.sm"
         help
+        :hint="convertImperial(underwearThickness)"
       >
         <template v-slot:help-title>
           Thickness underwear
@@ -47,6 +48,7 @@
         suffix="mm"
         label="Thickness (new)"
         v-model="thickness"
+        :hint="convertImperial(thickness)"
         :step="0.5"
         :decimals="1"
         :minimum="0"
@@ -159,7 +161,7 @@
         <tbody>
         <tr v-for="(depth, idx) in depths" :key="idx">
           <td class="text-right">
-            {{ depth }} m
+            <depth :depth="depth"></depth>
           </td>
           <td>
             <buoyancy :buoyancy="buoyancyAtDepth(depth,
@@ -185,11 +187,15 @@
 <script>
 import InputSpinner from 'components/InputSpinner';
 import * as math from 'src/math';
+import * as units from 'src/units';
 import Buoyancy from 'components/Buoyancy';
 import InputSelect from 'components/InputSelect';
+import Depth from 'components/Depth';
 
 export default {
-  components: { InputSelect, Buoyancy, InputSpinner },
+  components: {
+    Depth, InputSelect, Buoyancy, InputSpinner,
+  },
   props: {
     index: {
       type: Number,
@@ -197,6 +203,12 @@ export default {
     },
   },
   methods: {
+    convertImperial(value) {
+      if (this.$store.state.buoyancy.isMetric) {
+        return undefined;
+      }
+      return `${parseFloat(value).toFixed(1)} mm ≈ ${units.mmAsInchFraction(value)} inch`;
+    },
     // remap value?
     setAgePercentage(value) {
       this.$store.dispatch('buoyancy/updateWetsuitPiece', {
@@ -220,7 +232,9 @@ export default {
   },
   computed: {
     depths() {
-      return [0, 6, 12, 18, 24, 30];
+      return this.$store.state.buoyancy.isMetric
+        ? math.DepthsMetric
+        : math.DepthsImperial;
     },
     computeItemThickness() {
       // assumtion: old and new wetsuits weigh the same.

@@ -15,11 +15,6 @@ const routes = [
         component: () => import('pages/Suit.vue'),
       },
       {
-        name: 'bcd',
-        path: 'bcd',
-        component: () => import('pages/Bcd.vue'),
-      },
-      {
         name: 'tank',
         path: 'tank',
         component: () => import('pages/Tank.vue'),

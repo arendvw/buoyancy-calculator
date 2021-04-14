@@ -8,11 +8,23 @@
       :dense="dense"
       input-class="text-right"
       side
-      :value="inputValue"
-      @input="onInput"
-      :suffix="suffix"
+      :value="inputFeet"
+      @input="onInputFeet"
+      suffix="ft"
       :disable="disable"
-      :hint="hint"
+    />
+    <q-input
+      label=" "
+      filled
+      square
+      type="number"
+      :dense="dense"
+      input-class="text-right"
+      side
+      :value="inputInch"
+      @input="onInputInch"
+      suffix="inch"
+      :disable="disable"
      />
     <q-btn
       unelevated
@@ -70,10 +82,6 @@ import * as units from '../units';
 export default {
   components: { HelpDialog },
   props: {
-    hint: {
-      type: String,
-      required: false,
-    },
     value: {
       type: Number,
       required: true,
@@ -139,15 +147,17 @@ export default {
       }
       return value;
     },
-    onInput(value) {
-      let floatVal = 0;
-      if (this.converter !== null) {
-        floatVal = units.units[this.converter].toMetric(value);
-      } else {
-        floatVal = parseFloat(value);
+    onInputFeet(value) {
+      const cm = (parseInt(value, 10) + this.inputInch / 12) * units.feetToCm;
+      if (!Number.isNaN(cm)) {
+        this.$emit('input', this.bounds(cm));
       }
-      if (!Number.isNaN(floatVal)) {
-        this.$emit('input', this.bounds(floatVal));
+      return false;
+    },
+    onInputInch(value) {
+      const cm = (this.inputFeet + parseInt(value, 10) / 12) * units.feetToCm;
+      if (!Number.isNaN(cm)) {
+        this.$emit('input', this.bounds(cm));
       }
       return false;
     },
@@ -169,13 +179,12 @@ export default {
     },
   },
   computed: {
-    inputValue() {
-      if (this.converter !== null) {
-        return units.units[this.converter]
-          .fromMetric(this.value)
-          .toFixed(this.decimals);
-      }
-      return this.value.toFixed(this.decimals);
+    inputFeet() {
+      return Math.floor(this.value / units.feetToCm);
+    },
+    inputInch() {
+      const feet = this.value / units.feetToCm;
+      return Math.round((feet - Math.floor(feet)) * units.feetToInch);
     },
   },
 };

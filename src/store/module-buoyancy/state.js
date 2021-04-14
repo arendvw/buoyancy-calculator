@@ -31,6 +31,6 @@ export default function () {
     wetsuitPieces: [],
     tanks: [],
     weightItems: [],
-    bcdVolume: 20,
+    isMetric: true,
   };
 }
