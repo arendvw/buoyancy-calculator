@@ -101,11 +101,10 @@
               style="cursor: pointer">
             <td>{{ weightItem.name }} ({{ weightItem.material }})
               <div
-                v-if="weightItem.enabled && !isVeryDense"
+                v-if="weightItem.enabled && !isVeryDense && weightItem.material === 'lead'"
                 class="q-mt-md" style="display: flex; justify-content: end">
               <input-spinner
                 style="min-width: 130px; max-width: 150px"
-                v-if="weightItem.material === 'lead'"
                 :dense="true"
                 :value="weightItem.weight"
                 @input="setFromWeight(index, $event)"
