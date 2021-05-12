@@ -115,6 +115,7 @@
           @input="setGas(index, $event)"
           :value="tank.gasMixture"
           :options="gasses"
+          :option-disable="opt => opt.disabled"
           map-options
       />
     </div>
@@ -254,10 +255,29 @@ export default {
       }));
     },
     gasses() {
-      return Object.keys(math.GasMixtures).map((key) => ({
-        label: math.GetGasLabel(key),
-        value: key,
-      }));
+      const groups = {
+        common: 'Common',
+        trimix: 'Trimix',
+      };
+      const output = [];
+      Object.keys(groups).forEach((group) => {
+        if (group !== 'common') {
+          output.push({
+            label: groups[group],
+            disabled: true,
+          });
+        }
+        Object.keys(math.GasMixtures).forEach((key) => {
+          if (math.GasMixtures[key].group !== group) {
+            return;
+          }
+          output.push({
+            label: math.GetGasLabel(key),
+            value: key,
+          });
+        });
+      });
+      return output;
     },
     doubleOptions() {
       return [

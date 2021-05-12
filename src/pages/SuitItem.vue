@@ -9,7 +9,7 @@
           {{ thickness.toFixed(1) }} mm<template v-if="item.isDry">, </template>
         </template>
         <template v-if="item.isDry">
-          underwear
+          undergarment
           {{ underwearThickness.toFixed(1) }} mm
         </template>
       </div>

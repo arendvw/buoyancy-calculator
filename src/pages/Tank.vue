@@ -11,6 +11,7 @@
           @input="addOption"
           :value="null"
           :options="optionsWithLabel"
+          :option-disable="opt => opt.disabled"
           placeholder="Add new tank"/>
       </div>
       <q-dialog v-model="showEdit">
@@ -218,7 +219,6 @@ export default {
   },
   methods: {
     addOption(value) {
-      value.isDouble = false;
       value.gasMixture = 'air';
       value.includeValve = true;
       value.configuredPressure = value.workingPressure;
@@ -247,21 +247,52 @@ export default {
       return this.$store.state.buoyancy.tanks;
     },
     optionsWithLabel() {
-      if (this.$store.state.buoyancy.isMetric) {
-        return math.TankConfigurations.map((option, idx) => {
-          option.label = math.GetTankLabel(option);
-          option.value = idx;
-          return option;
+      const groups = {
+        single: 'Single tank',
+        doubles: 'Doubleset',
+        stage: 'Stage',
+        'argon-ccr': 'Argon / CCR bottles',
+      };
+      const output = [];
+      Object.keys(groups).forEach((group) => {
+        output.push({
+          label: groups[group],
+          disabled: true,
         });
-      }
-      const result = math.TankConfigurations.map((option, idx) => {
-        option.label = math.GetTankImperialLabel(option);
-        option.value = idx;
-        option.freeLiters = math.CalculateTankFreeLiters(option);
-        return option;
+        const groupOutput = [];
+        math.TankConfigurations.forEach((option, idx) => {
+          if (!option.tags.some((tag) => tag === group)) {
+            return;
+          }
+          const newOption = { ...option };
+          newOption.isDouble = group === 'doubles';
+
+          if (this.$store.state.buoyancy.isMetric) {
+            newOption.label = math.GetTankFullLabel(newOption);
+            newOption.value = idx;
+            groupOutput.push(newOption);
+          } else {
+            newOption.label = math.GetTankFullImperialLabel(newOption);
+            newOption.value = idx;
+            newOption.freeLiters = math.CalculateTankFreeLiters(newOption);
+            groupOutput.push(newOption);
+          }
+        });
+        if (!this.$store.state.buoyancy.isMetric) {
+          groupOutput.sort((a, b) => a.freeLiters - b.freeLiters);
+        }
+        output.push(...groupOutput);
       });
-      result.sort((a, b) => a.freeLiters - b.freeLiters);
-      return result;
+      return output;
+      //
+      // const result = math.TankConfigurations.map((option, idx) => {
+      //   option.label = math.GetTankFullImperialLabel(option);
+      //   option.value = idx;
+      //   option.freeLiters = math.CalculateTankFreeLiters(option);
+      //   return option;
+      // });
+      // result.sort((a, b) => a.freeLiters - b.freeLiters);
+      // return result;
     },
   },
 };

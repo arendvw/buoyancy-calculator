@@ -3,7 +3,7 @@
     <div class="input-row"         v-if="item.isDry"
     >
       <input-spinner
-        label="Thickness underwear"
+        label="Undergarment thickness"
         suffix="mm"
         v-model="underwearThickness"
         :step="0.5"
@@ -15,10 +15,10 @@
         :hint="convertImperial(underwearThickness)"
       >
         <template v-slot:help-title>
-          Thickness underwear
+          Thickness undergarment
         </template>
         <template v-slot:help>
-          Thicker underwear contains more air. <br/>
+          Thicker undergarment contains more air. <br/>
           <strong>To measure:</strong><br/>
           <ul>
             <li>
@@ -46,7 +46,7 @@
     <div class="input-row" v-if="item.hasNeoprene">
       <input-spinner
         suffix="mm"
-        label="Thickness (new)"
+        label="Neoprene thickness (new)"
         v-model="thickness"
         :hint="convertImperial(thickness)"
         :step="0.5"
