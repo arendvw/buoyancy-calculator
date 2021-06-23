@@ -321,12 +321,12 @@
                   :converter="weightConverter"
                 ></input-spinner>
                 <div class="flex justify-end">
-                    <q-btn @click="customize = false" size="sm" color="secondary" flat dense icon="check">&nbsp;done</q-btn>
+                    <q-btn @click="customize = false" size="md" color="blue-grey-4" dense icon="check">&nbsp;</q-btn>
                 </div>
               </template>
               <template v-else>
                 <div class="flex justify-end">
-                  <q-btn @click="customize = true" size="sm" color="secondary" flat dense icon="edit">&nbsp;customize</q-btn>
+                  <q-btn @click="customize = true" size="md" color="blue-grey-4" dense icon="settings">&nbsp;</q-btn>
                 </div>
               </template>
             </p>

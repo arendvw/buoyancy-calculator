@@ -302,9 +302,9 @@
           </div>
         </template>
         <div class="flex justify-end q-pt-lg">
-        <q-btn color="secondary" size="md" icon="settings" v-if="configure === false" @click="configure = true">
+        <q-btn color="blue-grey-4" size="md" icon="settings" v-if="configure === false" @click="configure = true">
         </q-btn>
-        <q-btn color="primary" size="md" icon="check" v-if="configure === true" @click="configure = false"></q-btn>
+        <q-btn color="blue-grey-4" size="md" icon="check" v-if="configure === true" @click="configure = false"></q-btn>
         </div>
       </div>
     </div>
