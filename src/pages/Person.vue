@@ -250,7 +250,7 @@
                 {{ lungCapacityFullyInhaled.toFixed(1) }} &ell;</td>
               <td class="text-right buoyancy-table-lung buoyancy">
                 <buoyancy :buoyancy="calculateBodyWeight(lungCapacityFullyInhaled,
-                $store.getters['buoyancy/currentWaterDensity'])"></buoyancy></td>
+                $store.getters['buoyancy/currentWaterDensity'])-buoyancyAdjustment"></buoyancy></td>
             </tr>
             <tr>
               <td>Normally inhaled</td>
@@ -258,7 +258,7 @@
                 {{ lungCapacityNormallyInhaled.toFixed(1) }} &ell;</td>
               <td class="text-right">
                 <buoyancy :buoyancy="calculateBodyWeight(lungCapacityNormallyInhaled,
-                $store.getters['buoyancy/currentWaterDensity'])"></buoyancy></td>
+                $store.getters['buoyancy/currentWaterDensity'])-buoyancyAdjustment"></buoyancy></td>
             </tr>
             <tr>
               <td>Normally exhaled</td>
@@ -266,7 +266,7 @@
                 {{ lungCapacityNormallyExhaled.toFixed(1) }} &ell;</td>
               <td class="text-right">
                 <buoyancy :buoyancy="calculateBodyWeight(lungCapacityNormallyExhaled,
-                $store.getters['buoyancy/currentWaterDensity'])"></buoyancy></td>
+                $store.getters['buoyancy/currentWaterDensity'])-buoyancyAdjustment"></buoyancy></td>
             </tr>
             <tr>
               <td>Fully exhaled</td>
@@ -274,15 +274,16 @@
                 {{ lungCapacityFullyExhaled.toFixed(1) }} &ell;</td>
               <td class="text-right">
                 <buoyancy :buoyancy="calculateBodyWeight(lungCapacityFullyExhaled,
-                $store.getters['buoyancy/currentWaterDensity'])"></buoyancy></td>
+                $store.getters['buoyancy/currentWaterDensity'])-buoyancyAdjustment"></buoyancy></td>
             </tr>
           </tbody>
         </q-markup-table>
         <q-card class="my-card q-mt-lg" :dense="isDense">
           <q-card-section>
+
             <p>
             In <strong>{{ $store.state.buoyancy.salinity }} water</strong>
-            your personal buoyancy is approximately
+            your personal buoyancy is<br/> approximately
             <strong><buoyancy :buoyancy="calculateBodyWeight(lungCapacityNormallyInhaled,
                 $store.getters['buoyancy/currentWaterDensity'])"></buoyancy></strong>
               ({{ getBuoyancyDescription(calculateBodyWeight(lungCapacityNormallyInhaled,
@@ -294,10 +295,12 @@
               <strong>
                 <weight :weight="
                 (calculateBodyWeight(lungCapacityNormallyInhaled, math.DensitySaltwater) -
-                 calculateBodyWeight(lungCapacityNormallyInhaled, math.DensityFreshWater))">
+                 calculateBodyWeight(lungCapacityNormallyInhaled, math.DensityFreshWater))
+">
                 </weight> more</strong> in salt water.
             </template>
             <template v-if="$store.state.buoyancy.salinity === 'salt'">
+
               Your personal buoyancy is
               <strong>
                 <weight :weight="
@@ -305,6 +308,27 @@
                  calculateBodyWeight(lungCapacityNormallyInhaled, math.DensityFreshWater))">
                 </weight> less</strong> in fresh water.
             </template>
+
+              <template v-if="customize">
+                <input-spinner
+                  label="Adjust personal buoyancy"
+                  dense
+                  class="q-mt-lg q-mb-lg"
+                  v-model="buoyancyAdjustment"
+                  :decimals="1"
+                  :step="weightStep"
+                  :suffix="weightUnit"
+                  :converter="weightConverter"
+                ></input-spinner>
+                <div class="flex justify-end">
+                    <q-btn @click="customize = false" size="sm" color="secondary" flat dense icon="check">&nbsp;done</q-btn>
+                </div>
+              </template>
+              <template v-else>
+                <div class="flex justify-end">
+                  <q-btn @click="customize = true" size="sm" color="secondary" flat dense icon="edit">&nbsp;customize</q-btn>
+                </div>
+              </template>
             </p>
           </q-card-section>
         </q-card>
@@ -335,11 +359,20 @@ export default {
   },
   data() {
     return {
+      customize: false,
     };
   },
   computed: {
     math() {
       return math;
+    },
+    buoyancyAdjustment: {
+      get() {
+        return this.$store.state.buoyancy.buoyancyAdjustment;
+      },
+      set(value) {
+        return this.$store.dispatch('buoyancy/setPersonProperty', { buoyancyAdjustment: value });
+      },
     },
     age: {
       get() {
@@ -433,6 +466,15 @@ export default {
     isDense() {
       return this.$q.screen.lt.sm;
     },
+    weightStep() {
+      return this.$store.state.buoyancy.isMetric ? 0.5 : 0.5 / this.$units.poundsToKg;
+    },
+    weightUnit() {
+      return this.$store.state.buoyancy.isMetric ? 'kg' : 'lbs';
+    },
+    weightConverter() {
+      return this.$store.state.buoyancy.isMetric ? undefined : 'weight';
+    },
   },
   watch: {
     fatPercentageFromBsi(value) {
@@ -470,6 +512,7 @@ export default {
         this.fatPercentage / 100,
         lungVolume,
         waterDensity,
+        this.buoyancyAdjustment,
       );
     },
   },

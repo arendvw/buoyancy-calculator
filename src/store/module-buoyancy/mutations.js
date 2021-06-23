@@ -22,6 +22,7 @@ export function SET_PERSON_PROPERTY(state, {
   enabledBalancedStart,
   enabledBalancedEnd,
   isMetric,
+  buoyancyAdjustment,
 }) {
   if (weight !== undefined) {
     state.weight = weight;
@@ -52,6 +53,9 @@ export function SET_PERSON_PROPERTY(state, {
   }
   if (isMetric !== undefined) {
     state.isMetric = isMetric;
+  }
+  if (buoyancyAdjustment !== undefined) {
+    state.buoyancyAdjustment = buoyancyAdjustment;
   }
 }
 

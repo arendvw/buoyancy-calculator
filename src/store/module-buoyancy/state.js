@@ -23,6 +23,9 @@ export default function () {
     // used for lung volume and body surface area
     height: 185,
     enabled: true,
+    buoyancyAdjustment: 0,
+    enabledBalancedStart: true,
+    enabledBalancedEnd: true,
     // fat percentage in 0-100
     // used for personal buoyancy
     fatPercentage: 15,

@@ -9,6 +9,7 @@ export function setPersonProperty(context, {
   enabledBalancedStart,
   enabledBalancedEnd,
   isMetric,
+  buoyancyAdjustment,
 }) {
   context.commit('SET_PERSON_PROPERTY', {
     weight,
@@ -21,7 +22,7 @@ export function setPersonProperty(context, {
     isMetric,
     enabledBalancedStart,
     enabledBalancedEnd,
-    weight, fatPercentage, fatPercentageManual, height, age, gender, enabled, isMetric,
+    buoyancyAdjustment,
   });
 }
 export function addWetsuitPiece(context, {
