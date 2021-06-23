@@ -75,7 +75,12 @@ const linksData = [
     caption: 'Calculate your buoyancy',
     icon: 'receipt',
     to: { name: 'report' },
-
+  },
+  {
+    title: 'Balanced Rig',
+    caption: 'Determine how much lead you need',
+    icon: 'monitor_weight',
+    to: { name: 'balancedrig' },
   },
 ];
 

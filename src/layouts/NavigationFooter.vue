@@ -45,6 +45,10 @@ const routes = [
     name: 'report',
     title: 'Report',
   },
+  {
+    name: 'balancedrig',
+    title: 'Balanced Rig',
+  },
 ];
 export default {
   name: 'navigation-footer',
