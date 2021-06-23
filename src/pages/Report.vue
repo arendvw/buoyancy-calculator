@@ -176,7 +176,6 @@ import InputSalinity from 'components/InputSalinity';
 import * as math from '../math';
 
 export default {
-  name: 'PageReport',
   data() {
     return {
       allTanksFull: true,

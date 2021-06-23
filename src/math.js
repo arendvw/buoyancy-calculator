@@ -460,17 +460,19 @@ export function GetTankShortImperialLabel({
  * @param percentage
  * @param lungVolume
  * @param waterDensity
+ * @param buoyancyAdjustment
  * @returns {number}
  * @constructor
  */
-export function CalculateWeightFromFatPercentage(weight, percentage, lungVolume, waterDensity) {
+export function CalculateWeightFromFatPercentage(weight, percentage, lungVolume, waterDensity,
+  buoyancyAdjustment) {
   //  using siri's equation
   // https://www.topendsports.com/testing/siri-equation.htm
   // % Body Fat = (495 / Body Density) - 450.
   const density = 4.95 / (percentage + 4.50);
   const volume = (weight / density) + lungVolume;
   const densityWithLungs = weight / volume;
-  return (waterDensity - densityWithLungs) * volume;
+  return ((waterDensity - densityWithLungs) * volume) + buoyancyAdjustment;
 }
 
 /**
@@ -805,45 +807,61 @@ export const WeightItems = [
     name: 'Finns (recreational)',
     weight: 1,
     material: 'plastic',
+    droppable: false,
+    group: 'finns',
   },
   {
     name: 'Apeks RK3 Finns (tech)',
     weight: 2.2,
     material: 'rubberHard',
+    group: 'finns',
   },
   {
-    name: 'Apeks First Stage',
+    name: 'First Stage',
     weight: 0.5,
     material: 'steel',
+    group: 'regulator',
   },
   {
     name: 'Backplate 6mm',
     weight: 4.5,
+    group: 'backplate',
     material: 'steel',
   },
   {
     name: 'Backplate 3mm',
     weight: 2.3,
+    group: 'backplate',
     material: 'steel',
   },
   {
     name: 'Backplate 3mm',
     weight: 0.8,
+    group: 'backplate',
     material: 'aluminum',
   },
   {
     name: 'Single tank adapter',
     weight: 0.7,
+    group: 'backplate',
     material: 'steel',
   },
   {
     name: 'Single tank adapter',
     weight: 0.2,
+    group: 'backplate',
     material: 'aluminum',
   },
   {
-    name: 'Lead',
+    name: 'Lead droppable',
     weight: 2,
+    group: 'weights',
+    material: 'lead',
+  },
+  {
+    name: 'Lead fixed',
+    weight: 2,
+    group: 'weights',
     material: 'lead',
   },
 ];

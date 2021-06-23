@@ -152,15 +152,17 @@ export default {
       return false;
     },
     removeStep() {
-      if (this.step && Math.abs(this.value % this.step) > this.step / 100) {
+      // very close to a 'snap' value..
+      if (this.step && this.value % this.step > this.step / 100) {
         const val = this.value - (this.value % this.step);
-        this.$emit('input', this.bounds(val));
+        this.$emit('input', val);
         return;
       }
       this.$emit('input', this.bounds(this.value - this.step));
     },
     addStep() {
-      if (this.step && Math.abs(this.value % this.step) < this.step / 100) {
+      // very close to a 'snap' value..
+      if (this.step && this.value % this.step < this.step / 100) {
         const val = this.value - (this.value % this.step) + this.step;
         this.$emit('input', this.bounds(val));
         return;

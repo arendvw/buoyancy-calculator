@@ -10,6 +10,7 @@
         @input="addOption"
         :value="null"
         :options="optionsWithLabel"
+        :option-disable="opt => opt.disabled"
         placeholder="Add new tank"/>
       <q-markup-table
         :dense="isDense"
@@ -147,11 +148,28 @@ export default {
       return null;
     },
     optionsWithLabel() {
-      return math.WeightItems.map((option, idx) => {
-        option.label = math.GetWeightItemLabel(option);
-        option.value = idx;
-        return option;
-      });
+      const groups = {
+        finns: 'Finns',
+        regulator: 'Regulators',
+        backplate: 'Backplate',
+        weights: 'Weights',
+      };
+      const output = [];
+      // eslint-disable-next-line no-restricted-syntax
+      for (const group of Object.keys(groups)) {
+        output.push({
+          label: groups[group],
+          disabled: true,
+        });
+
+        const groupOutput = math.WeightItems.map((option, idx) => {
+          option.label = math.GetWeightItemLabel(option);
+          option.value = idx;
+          return option;
+        }).filter((opt) => opt.group === group);
+        output.push(...groupOutput);
+      }
+      return output;
     },
     weights() {
       return this.$store.state.buoyancy.weightItems;
