@@ -60,4 +60,12 @@ export const units = {
       return parseFloat(value) / psiToBar;
     },
   },
+  distance: {
+    fromMetric(value) {
+      return (parseFloat(value) / feetToMeter);
+    },
+    toMetric(value) {
+      return parseFloat(value) * feetToMeter;
+    },
+  },
 };

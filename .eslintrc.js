@@ -62,6 +62,7 @@ module.exports = {
     'import/no-extraneous-dependencies': 'off',
     'import/prefer-default-export': 'off',
     'prefer-promise-reject-errors': 'off',
+    'no-restricted-syntax' : 'off',
     'max-len': ['error',
       {
         'code': 150,

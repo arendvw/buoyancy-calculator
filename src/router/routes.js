@@ -39,6 +39,11 @@ const routes = [
         path: 'report',
         component: () => import('pages/Report.vue'),
       },
+      {
+        name: 'balancedrig',
+        path: 'balancedrig',
+        component: () => import('pages/BalancedRig.vue'),
+      },
     ],
   },
 

@@ -6,10 +6,23 @@ export function setPersonProperty(context, {
   age,
   gender,
   enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
   isMetric,
+  buoyancyAdjustment,
 }) {
   context.commit('SET_PERSON_PROPERTY', {
-    weight, fatPercentage, fatPercentageManual, height, age, gender, enabled, isMetric,
+    weight,
+    fatPercentage,
+    fatPercentageManual,
+    height,
+    age,
+    gender,
+    enabled,
+    isMetric,
+    enabledBalancedStart,
+    enabledBalancedEnd,
+    buoyancyAdjustment,
   });
 }
 export function addWetsuitPiece(context, {
@@ -35,6 +48,9 @@ export function addWetsuitPiece(context, {
     maxAirPercentage,
     underwearThickness,
     hasNeoprene,
+    enabledBalancedStart: true,
+    enabledBalancedEnd: true,
+    enabled: true,
   });
 }
 
@@ -51,6 +67,8 @@ export function updateWetsuitPiece(context, {
   underwearThickness,
   hasNeoprene,
   enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   context.commit('UPDATE_WETSUIT_PIECE', {
     type,
@@ -65,6 +83,8 @@ export function updateWetsuitPiece(context, {
     underwearThickness,
     hasNeoprene,
     enabled,
+    enabledBalancedStart,
+    enabledBalancedEnd,
   });
 }
 
@@ -93,6 +113,9 @@ export function addTank(context, {
     gasMixture,
     isDouble,
     includeValve,
+    enabled: true,
+    enabledBalancedStart: true,
+    enabledBalancedEnd: true,
   });
 }
 
@@ -108,6 +131,8 @@ export function updateTank(context, {
   isDouble,
   includeValve,
   enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   context.commit('UPDATE_TANK', {
     index,
@@ -121,6 +146,8 @@ export function updateTank(context, {
     isDouble,
     includeValve,
     enabled,
+    enabledBalancedStart,
+    enabledBalancedEnd,
   });
 }
 
@@ -152,6 +179,8 @@ export function addWeightItem(context, {
     buoyancySaltWater,
     mode,
     enabled: true,
+    enabledBalancedStart: true,
+    enabledBalancedEnd: true,
   });
 }
 
@@ -166,6 +195,8 @@ export function updateWeightItem(context, {
   buoyancySaltWater,
   mode,
   enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   context.commit('UPDATE_WEIGHT_ITEM', {
     index,
@@ -178,6 +209,8 @@ export function updateWeightItem(context, {
     buoyancySaltWater,
     mode,
     enabled,
+    enabledBalancedStart,
+    enabledBalancedEnd,
   });
 }
 

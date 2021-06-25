@@ -26,7 +26,8 @@
           label="Add new piece"
           @input="addOption"
           :value="null"
-          :options="options"
+          :options="optionsWithLabel"
+          :option-disable="opt => opt.disabled"
           placeholder="Add new piece"/>
       </div>
       <q-card>
@@ -125,59 +126,72 @@ export default {
         {
           label: 'Trilaminate (drysuit)',
           value: 'fullBodyTrilaminate',
+          group: 'drysuit',
         },
         {
           label: 'Neoprene (drysuit)',
           value: 'fullBodyNeopreneDrysuit',
+          group: 'drysuit',
         },
         {
           label: 'Neoprene full body (wet)',
           value: 'fullBody',
+          group: 'wetsuit',
         },
         {
           label: 'Neoprene full body hooded (wet)',
           value: 'fullBodyHoodie',
+          group: 'wetsuit',
         },
         {
           label: 'Neoprene shorty (wet)',
           value: 'shorty',
+          group: 'wetsuit',
         },
         {
           label: 'Neoprene shorty hooded (wet)',
           value: 'shortyHooded',
+          group: 'wetsuit',
         },
         {
           label: 'Neoprene cap (wet)',
           value: 'cap',
+          group: 'pieces',
         },
         {
           label: 'Neoprene gloves (wet)',
           value: 'gloves',
+          group: 'pieces',
         },
-
         {
           label: 'Neoprene shoes (wet)',
           value: 'shoes',
+          group: 'pieces',
         },
         {
           label: 'Neoprene sleeveless shirt (wet)',
           value: 'sleevelessShirt',
+          group: 'other',
         },
         {
           label: 'Neoprene short sleeved shirt (wet)',
           value: 'shortSleeveShirt',
+          group: 'other',
         },
         {
           label: 'Neoprene long sleeved Shirt (wet)',
           value: 'longSleeveShirt',
+          group: 'other',
         },
         {
           label: 'Neoprene shorts (wet)',
           value: 'shorts',
+          group: 'other',
         },
         {
           label: 'Neoprene long pants (wet)',
           value: 'pants',
+          group: 'other',
         },
       ],
     };
@@ -190,6 +204,25 @@ export default {
     },
     ruleOfNinesArea() {
       return math.RuleOfNines(this.bsaMosteller);
+    },
+    optionsWithLabel() {
+      const groups = {
+        drysuit: 'Drysuits',
+        wetsuit: 'Wetsuits',
+        pieces: 'Gloves / Cap / Shoes',
+        other: 'Shirts / Pants',
+      };
+      const output = [];
+      // eslint-disable-next-line no-restricted-syntax
+      for (const group of Object.keys(groups)) {
+        output.push({
+          label: groups[group],
+          disabled: true,
+        });
+        const groupOutput = this.options.filter((opt) => opt.group === group);
+        output.push(...groupOutput);
+      }
+      return output;
     },
     height() {
       return this.$store.state.buoyancy.height;
@@ -215,7 +248,6 @@ export default {
       if (item.value === null) {
         return;
       }
-
       const ruleOfNinesArea = math.RuleOfNines(this.bsaMosteller);
       // check if item is a drysuit..
       if (item.value === 'fullBodyTrilaminate') {

@@ -17,6 +17,7 @@ export function personalBuoyancy(state) {
       state.fatPercentage / 100,
       volume,
       isFresh ? math.DensityFreshWater : math.DensitySaltwater,
+      state.buoyancyAdjustment,
     );
   };
 }

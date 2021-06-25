@@ -19,7 +19,10 @@ export function SET_PERSON_PROPERTY(state, {
   age,
   gender,
   enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
   isMetric,
+  buoyancyAdjustment,
 }) {
   if (weight !== undefined) {
     state.weight = weight;
@@ -42,8 +45,17 @@ export function SET_PERSON_PROPERTY(state, {
   if (enabled !== undefined) {
     state.enabled = enabled;
   }
+  if (enabledBalancedStart !== undefined) {
+    state.enabledBalancedStart = enabledBalancedStart;
+  }
+  if (enabledBalancedEnd !== undefined) {
+    state.enabledBalancedEnd = enabledBalancedEnd;
+  }
   if (isMetric !== undefined) {
     state.isMetric = isMetric;
+  }
+  if (buoyancyAdjustment !== undefined) {
+    state.buoyancyAdjustment = buoyancyAdjustment;
   }
 }
 
@@ -60,6 +72,9 @@ export function SET_PERSON_PROPERTY(state, {
  * @param maxAirPercentage
  * @param underwearThickness
  * @param hasNeoprene
+ * @param enabled
+ * @param enabledBalancedStart
+ * @param enabledBalancedEnd
  * @constructor
  */
 export function ADD_WETSUIT_PIECE(state, {
@@ -73,6 +88,9 @@ export function ADD_WETSUIT_PIECE(state, {
   maxAirPercentage,
   underwearThickness,
   hasNeoprene,
+  enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   state.wetsuitPieces.push({
     type,
@@ -85,7 +103,9 @@ export function ADD_WETSUIT_PIECE(state, {
     maxAirPercentage,
     underwearThickness,
     hasNeoprene,
-    enabled: true,
+    enabled,
+    enabledBalancedStart,
+    enabledBalancedEnd,
   });
 }
 
@@ -102,6 +122,8 @@ export function UPDATE_WETSUIT_PIECE(state, {
   underwearThickness,
   hasNeoprene,
   enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   if (type !== undefined) {
     state.wetsuitPieces[index].type = type;
@@ -136,6 +158,12 @@ export function UPDATE_WETSUIT_PIECE(state, {
   if (enabled !== undefined) {
     state.wetsuitPieces[index].enabled = enabled;
   }
+  if (enabledBalancedStart !== undefined) {
+    state.wetsuitPieces[index].enabledBalancedStart = enabledBalancedStart;
+  }
+  if (enabledBalancedEnd !== undefined) {
+    state.wetsuitPieces[index].enabledBalancedEnd = enabledBalancedEnd;
+  }
 }
 
 /**
@@ -158,6 +186,9 @@ export function ADD_TANK(state, {
   gasMixture,
   isDouble,
   includeValve,
+  enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   state.tanks.push({
     volume,
@@ -169,7 +200,9 @@ export function ADD_TANK(state, {
     gasMixture,
     isDouble,
     includeValve,
-    enabled: true,
+    enabled,
+    enabledBalancedStart,
+    enabledBalancedEnd,
   });
 }
 export function UPDATE_TANK(state, {
@@ -184,6 +217,8 @@ export function UPDATE_TANK(state, {
   isDouble,
   includeValve,
   enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   if (volume !== undefined) {
     state.tanks[index].volume = volume;
@@ -215,6 +250,12 @@ export function UPDATE_TANK(state, {
   if (enabled !== undefined) {
     state.tanks[index].enabled = enabled;
   }
+  if (enabledBalancedStart !== undefined) {
+    state.tanks[index].enabledBalancedStart = enabledBalancedStart;
+  }
+  if (enabledBalancedEnd !== undefined) {
+    state.tanks[index].enabledBalancedEnd = enabledBalancedEnd;
+  }
 }
 
 export function DELETE_TANK(state, index) {
@@ -240,6 +281,9 @@ export function ADD_WEIGHT_ITEM(state, {
   buoyancyFreshWater,
   buoyancySaltWater,
   mode,
+  enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   state.weightItems.push({
     name,
@@ -250,7 +294,9 @@ export function ADD_WEIGHT_ITEM(state, {
     buoyancyFreshWater,
     buoyancySaltWater,
     mode,
-    enabled: true,
+    enabled,
+    enabledBalancedStart,
+    enabledBalancedEnd,
   });
 }
 export function UPDATE_WEIGHT_ITEM(state, {
@@ -264,6 +310,8 @@ export function UPDATE_WEIGHT_ITEM(state, {
   buoyancySaltWater,
   mode,
   enabled,
+  enabledBalancedStart,
+  enabledBalancedEnd,
 }) {
   if (volume !== undefined) {
     state.weightItems[index].volume = volume;
@@ -291,6 +339,12 @@ export function UPDATE_WEIGHT_ITEM(state, {
   }
   if (enabled !== undefined) {
     state.weightItems[index].enabled = enabled;
+  }
+  if (enabledBalancedStart !== undefined) {
+    state.weightItems[index].enabledBalancedStart = enabledBalancedStart;
+  }
+  if (enabledBalancedEnd !== undefined) {
+    state.weightItems[index].enabledBalancedEnd = enabledBalancedEnd;
   }
 }
 
