@@ -8,7 +8,7 @@ App available on
 - Estimate impact of diving cylinder
 - Show the impact of a balanced rig
 
-Inspired by the [Optimal Buoyancy Computer](https://scubaboard.com/community/threads/optimal-buoyancy-computer.576321/) by rsingler 
+Inspired by the [Optimal Buoyancy Computer](https://scubaboard.com/community/threads/optimal-buoyancy-computer.576321/) by Robert Singler 
 
 # Licence
 MIT
