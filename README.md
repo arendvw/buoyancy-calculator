@@ -1,4 +1,4 @@
-# Buoyancy calculator for Scuba purposes
+# Buoyancy calculator
 
 App available on
 [https://buoyancy.cc](https://buoyancy.cc)
