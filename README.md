@@ -1,6 +1,12 @@
-# Quasar App (buoyancy-quasar)
+# Buoyancy calculator for Scuba purposes
 
-A Quasar Framework app
+App available on
+[https://buoyancy.cc](https://buoyancy.cc)
+
+- Calculate weight of a person based on age, gender and length
+- Estimate impact of diving suite
+- Estimate impact of diving cylinder
+- Show the impact of a balanced rig
 
 ## Install the dependencies
 ```bash
